@@ -9,11 +9,9 @@ export default function ThemeToggle() {
     const saved = localStorage.getItem('theme');
     if (saved === 'dark') {
       document.documentElement.classList.add('dark');
-      document.documentElement.classList.remove('light');
       setIsDark(true);
     } else {
       document.documentElement.classList.remove('dark');
-      document.documentElement.classList.add('light');
     }
   }, []);
 
