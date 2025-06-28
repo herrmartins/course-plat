@@ -9,6 +9,8 @@ const initialState = {
 
 function RegisterForm() {
   const [state, action, isPending] = useActionState(saveUserData, initialState);
+  /* const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState(""); */
 
   return (
     <div className="mt-3 bg-gray-200 dark:bg-gray-800 p-3 rounded-2xl md:w-150">

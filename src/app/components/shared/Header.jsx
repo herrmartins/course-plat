@@ -7,14 +7,18 @@ function Header() {
   return (
     <>
       <div className="flex flex-col items-center">
-        <Link href="/">
+        {/* <Link href="/">
           <Image
             src="/logobig.jpg"
             alt="Inglês com idéias vivas"
             width={500}
             height={100}
           />
-        </Link>
+        </Link> */}
+        <div className="flex gap-2">
+          <Link href="/"><span>Home</span></Link>
+          <Link href="/auth/login"><span>Login</span></Link>
+        </div>
         <div className="mt-2">
           <ToggleTheme />
           <Link
