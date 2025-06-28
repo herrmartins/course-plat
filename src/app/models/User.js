@@ -1,15 +1,54 @@
 import mongoose from "mongoose";
 import connectDB from "../config/mongodb";
 
-const User = new mongoose.Schema({
-  username: { type: String, unique: true },
-  passwordHash: String,
-  email: { type: String, unique: true },
-  fullName: { type: String },
-  dateOfBirth: { type: Date },
-  role: { type: String, enum: ["parent", "student"], required: true },
-  parentIds: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-  canLogin: { type: Boolean, default: false },
+const UserSchema = new mongoose.Schema({
+  username: {
+    type: String,
+    required: [true, "Por favor, forneça um nome de usuário."],
+    unique: true,
+    trim: true,
+    lowercase: true,
+  },
+  passwordHash: {
+    type: String,
+    required: [true, "Por favor, forneça uma senha."],
+    minlength: 6,
+  },
+  email: {
+    type: String,
+    unique: true,
+    sparse: true,
+    trim: true,
+    lowercase: true,
+  },
+  fullName: {
+    type: String,
+    required: [true, "Por favor, forneça seu nome completo."],
+    trim: true,
+  },
+  dateOfBirth: {
+    type: Date,
+    required: [true, "Por favor, forneça sua data de nascimento."],
+  },
+  roles: {
+    type: [String],
+    enum: ["student", "parent", "teacher", "admin"],
+    required: true,
+    default: ["student"],
+  },
+  parentAccounts: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: [],
+    },
+  ],
+  childAccounts: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
   createdAt: { type: Date, default: Date.now },
   modifiedAt: { type: Date, default: Date.now },
 });
@@ -19,7 +58,7 @@ const getUserModel = async () => {
   if (process.env.NODE_ENV === "development") {
     delete mongoose.connection.models["User"];
   }
-  return mongoose.models.User || mongoose.model("User", User);
+  return mongoose.models.User || mongoose.model("User", UserSchema);
 };
 
-export { User, getUserModel };
+export { UserSchema as User, getUserModel };

@@ -3,6 +3,7 @@
 import { isBlank } from "./utils/formUtils";
 import { signIn } from "./utils/auth";
 import { redirect } from "next/navigation";
+import { auth } from "@/auth";
 
 export default async function userLogin(currentState, formData) {
   const username = formData.get("username");
@@ -24,9 +25,12 @@ export default async function userLogin(currentState, formData) {
     await signIn("credentials", {
       username,
       password,
-      redirectTo: "/dashboard",
+      redirectTo: "/auth/dispatcher",
     });
   } catch (error) {
+    /* Totalmente contraintuitivo, mas é como o server action do Next funciona
+    Como o redirect vai ser executado no servidor, vai dar pau e tem que "lançado"
+    para que não dê pau "de fato...". */
     if (
       error &&
       typeof error === "object" &&
@@ -36,15 +40,17 @@ export default async function userLogin(currentState, formData) {
       throw error;
     }
 
-    if (error && typeof error === 'object' && error.type === "CredentialsSignin") {
-      return { success: false, message: "Invalid credentials." };
+    if (
+      error &&
+      typeof error === "object" &&
+      error.type === "CredentialsSignin"
+    ) {
+      return { success: false, message: "Credenciais inválidas." };
     }
 
     return {
       success: false,
-      message: `An unexpected error occurred: ${
-        error.message || String(error)
-      }`,
+      message: `Um erro inesperado ocorreu: ${error.message || String(error)}`,
     };
   }
 }

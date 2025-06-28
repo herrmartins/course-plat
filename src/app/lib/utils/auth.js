@@ -11,7 +11,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const password = credentials.password;
 
         if (!username || !password) {
-          console.error("Authorize function: Missing username or password.");
           return null;
         }
 
@@ -19,12 +18,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const user = await User.findOne({
           username: credentials.username,
         }).lean();
-        console.log("usuário achado", user);
 
         if (!user.passwordHash) {
-          console.error(
-            `Authorize function: User '${username}' has no password hash stored.`
-          );
           return null;
         }
 
@@ -33,22 +28,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           user.passwordHash
         );
 
-        console.log("Senha válida: ", isPasswordValid);
-
         if (isPasswordValid) {
-          console.log(
-            `Authorize function: Password valid for user '${username}'.`
-          );
           return {
             id: user._id.toString(),
             name: user.fullName || user.username,
             email: user.email,
-            role: user.role,
+            roles: user.roles,
           };
         } else {
-          console.log(
-            `Authorize function: Invalid password for user '${username}'.`
-          );
           return null;
         }
       },
@@ -63,7 +50,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.id = user.id;
         token.name = user.name;
         token.email = user.email;
-        token.role = user.role;
+        token.roles = user.roles;
       }
       return token;
     },
@@ -72,7 +59,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.id = token.id;
         session.user.name = token.name;
         session.user.email = token.email;
-        session.user.role = token.role;
+        session.user.roles = token.roles;
       }
       return session;
     },

@@ -2,8 +2,11 @@ import React from "react";
 import ToggleTheme from "../ToggleTheme";
 import Link from "next/link";
 import Image from "next/image";
+import LogoutBtn from "./LogoutBtn";
+import { auth } from "@/auth";
 
-function Header() {
+async function Header() {
+  const session = await auth();
   return (
     <>
       <div className="flex flex-col items-center">
@@ -16,8 +19,17 @@ function Header() {
           />
         </Link> */}
         <div className="flex gap-2">
-          <Link href="/"><span>Home</span></Link>
-          <Link href="/auth/login"><span>Login</span></Link>
+          <Link href="/">
+            <span>Home</span>
+          </Link>
+          {!session && (
+            <Link href="/auth/login">
+              <span>Login</span>
+            </Link>
+          )}
+          {session && (
+            <LogoutBtn />
+          )}
         </div>
         <div className="mt-2">
           <ToggleTheme />

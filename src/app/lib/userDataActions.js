@@ -39,7 +39,6 @@ export default async function saveUserData(currentState, formData) {
   }
 
   if (password !== confirmPassword) {
-    console.log("PASSWORD COM ERRO")
     return {
       success: false,
       message: "Senhas não conferem...",
@@ -56,8 +55,8 @@ export default async function saveUserData(currentState, formData) {
       email,
       passwordHash,
       dateOfBirth,
-      role: "parent",
-      canLogin: true,
+      roles: ["parent"],
+      isLoginEnabledByParent: true,
     });
 
     return {
