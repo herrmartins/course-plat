@@ -9,8 +9,6 @@ export async function GET(request) {
     const ClassType = await getClassTypeModel();
     const classTypes = await ClassType.find({}).lean();
 
-    console.log("tipos de classes: ", classTypes);
-
     return NextResponse.json(classTypes, { status: 200 });
   } catch (error) {
     console.error("Erro na API /api/classtypes:", error);

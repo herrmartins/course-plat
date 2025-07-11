@@ -1,17 +1,39 @@
 "use client";
 
+import { deleteClassTypeAction } from "@/app/lib/classes/deleteClassType";
+import { useRouter } from "next/navigation";
 import React from "react";
+import { useState } from "react";
 import { FaEdit, FaTrash, FaDollarSign } from "react-icons/fa";
 import { IoCalendarOutline } from "react-icons/io5";
 
-export default function ClassTypesTable({ classTypes, onEditClassType, onDeleteClassType }) {
+
+export default function ClassTypesTable({ classTypes }) {
+  const [clientClassTypes, setClientClassTypes] = useState(classTypes);
+  const router = useRouter();
+
+  const onEditClassType = (id) => {
+    router.push(`/admin/dashboard/class-types/edit/${id.toString()}`);
+  };
+
+  const handleDeleteClassType = async (classTypeId) => {
+    try {
+      await deleteClassTypeAction({ _id: classTypeId });
+      setClientClassTypes((prev) =>
+        prev.filter((ct) => ct._id !== classTypeId)
+      );
+    } catch (err) {
+      console.error("Erro deletando o tipo de turma", err);
+    }
+  };
+
   return (
-    <div className="overflow-x-auto px-4 mt-3">
-      <table className="w-full table-auto text-sm border border-neutral-200 dark:border-neutral-700 rounded-lg overflow-hidden shadow-sm">
+    <div className="flex justify-center px-4 mt-3 overflow-x-auto">
+      <table className="table-auto text-sm border border-neutral-200 dark:border-neutral-700 rounded-lg overflow-hidden shadow-sm md:min-w-200 lg:min-w-300">
         <thead className="bg-neutral-100 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200 uppercase text-xs">
           <tr>
             <th className="px-4 py-2 border-b border-neutral-200 dark:border-neutral-700 text-left">
-              Tipo de Classe
+              Tipo de Turma
             </th>
             <th className="px-4 py-2 border-b border-neutral-200 dark:border-neutral-700 hidden md:table-cell">
               Faixa Etária
@@ -28,7 +50,7 @@ export default function ClassTypesTable({ classTypes, onEditClassType, onDeleteC
           </tr>
         </thead>
         <tbody>
-          {classTypes.map((type, index) => (
+          {clientClassTypes.map((type, index) => (
             <tr
               key={type._id}
               className={`transition ${
@@ -63,7 +85,7 @@ export default function ClassTypesTable({ classTypes, onEditClassType, onDeleteC
                   />
                   <FaTrash
                     className="hover:text-red-500 transition cursor-pointer"
-                    onClick={() => onDeleteClassType(type._id)}
+                    onClick={() => handleDeleteClassType(type._id)}
                   />
                 </div>
               </td>

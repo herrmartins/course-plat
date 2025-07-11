@@ -3,6 +3,7 @@
 import { getClassTypeModel } from "@/app/models/ClassType";
 
 export default async function saveClassTypeAction(currentState, formData) {
+  const id = formData.get("_id");
   const title = formData.get("title");
   const description = formData.get("description");
   const ageRange = formData.get("ageRange");
@@ -14,7 +15,6 @@ export default async function saveClassTypeAction(currentState, formData) {
     ageRange,
     price,
   };
-  console.log("Raw data: ", rawData);
 
   function isBlank(value) {
     return value === null || value.trim() === "";
@@ -30,12 +30,20 @@ export default async function saveClassTypeAction(currentState, formData) {
 
   try {
     const classTypeModel = await getClassTypeModel();
-    await classTypeModel.create({
-      title,
-      description,
-      ageRange,
-      price,
-    });
+    if (id) {
+      await classTypeModel.updateOne(
+        { _id: id },
+        { title, description, ageRange, price }
+      );
+    } else {
+      await classTypeModel.create({
+        title,
+        description,
+        ageRange,
+        price,
+      });
+    }
+    
     return {
       success: true,
       redirectTo: "/admin/dashboard/class-types",

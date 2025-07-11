@@ -9,8 +9,6 @@ export async function GET(request) {
     const UserSchema = await getUserModel();
     const users = await UserSchema.find({}).lean();
 
-    console.log("tipos de classes: ", users);
-
     return NextResponse.json(users, { status: 200 });
   } catch (error) {
     console.error("Erro na API /api/users:", error);
