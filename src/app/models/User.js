@@ -53,12 +53,17 @@ const UserSchema = new mongoose.Schema({
   modifiedAt: { type: Date, default: Date.now },
 });
 
+UserSchema.pre('save', function(next) {
+  this.modifiedAt = Date.now();
+  next();
+});
+
 const getUserModel = async () => {
   await connectDB();
   if (process.env.NODE_ENV === "development") {
     delete mongoose.connection.models["User"];
   }
-  return mongoose.models.User || mongoose.model("User", UserSchema);
+  return mongoose.models.UserSchema || mongoose.model("User", UserSchema);
 };
 
-export { UserSchema as User, getUserModel };
+export { UserSchema, getUserModel };

@@ -2,9 +2,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
 async function DispatcherPage() {
-  const session = await auth();
-  console.log("SESSÃO: ", session);
-  
+  const session = await auth();  
 
   if (!session || !session.user || !session.user.roles) {
     console.log(
@@ -24,7 +22,7 @@ async function DispatcherPage() {
   } else if (userRoles.includes("student") && userRoles.length === 1) {
     redirect("/student/dashboard");
   } else {
-    redirect("/dashboard");
+    redirect("/");
   }
 
   return <div>DISPATCHER</div>;

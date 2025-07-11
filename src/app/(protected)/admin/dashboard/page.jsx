@@ -1,9 +1,12 @@
-import React from 'react'
+
+import AdminDashboard from "@/app/(protected)/components/AdminDashboard";
 
 function AdminDasBoard() {
   return (
-    <div>AdminDasBoard</div>
-  )
+    <>
+      <AdminDashboard />
+    </>
+  );
 }
 
-export default AdminDasBoard
+export default AdminDasBoard;
