@@ -1,12 +1,19 @@
 import mongoose from "mongoose";
+import connectDB from "@/app/config/mongodb";
 
 const FileSchema = new mongoose.Schema({
-  filename: { type: String, required: true },
+  title: { type: String, required: true },
   mimetype: { type: String },
   url: { type: String, required: true },
   size: { type: Number },
   uploadedAt: { type: Date, default: Date.now },
   modifiedAt: { type: Date, default: Date.now },
+  relatedToId: { type: mongoose.Schema.Types.ObjectId, required: false },
+  relatedToType: {
+    type: String,
+    enum: ["Class", "ClassTypes"],
+    required: false,
+  },
 
   uploadedBy: {
     type: mongoose.Schema.Types.ObjectId,
@@ -15,9 +22,6 @@ const FileSchema = new mongoose.Schema({
   },
 
   description: { type: String },
-  version: { type: Number, default: 1 },
-  thumbnailUrl: { type: String },
-  checksum: { type: String },
 });
 
 FileSchema.pre("save", function (next) {
@@ -25,6 +29,12 @@ FileSchema.pre("save", function (next) {
   next();
 });
 
-const File = mongoose.models.File || mongoose.model("File", FileSchema);
+const getFileModel = async () => {
+  await connectDB();
+  if (process.env.NODE_ENV === "development") {
+    delete mongoose.connection.models["FileSchema"];
+  }
+  return mongoose.models.FileSchema || mongoose.model("FileSchema", FileSchema);
+};
 
-export default File;
+export { FileSchema, getFileModel };

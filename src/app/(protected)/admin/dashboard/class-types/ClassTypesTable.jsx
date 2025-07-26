@@ -3,10 +3,12 @@
 import { deleteClassTypeAction } from "@/app/lib/classes/deleteClassType";
 import { useRouter } from "next/navigation";
 import React from "react";
+import Link from "next/link";
 import { useState } from "react";
 import { FaEdit, FaTrash, FaDollarSign } from "react-icons/fa";
+import { FaFileCirclePlus } from "react-icons/fa6";
 import { IoCalendarOutline } from "react-icons/io5";
-
+import { LuFileStack } from "react-icons/lu";
 
 export default function ClassTypesTable({ classTypes }) {
   const [clientClassTypes, setClientClassTypes] = useState(classTypes);
@@ -29,7 +31,7 @@ export default function ClassTypesTable({ classTypes }) {
 
   return (
     <div className="flex justify-center px-4 mt-3 overflow-x-auto">
-      <table className="table-auto text-sm border border-neutral-200 dark:border-neutral-700 rounded-lg overflow-hidden shadow-sm md:min-w-200 lg:min-w-300">
+      <table className="table-auto text-sm border border-neutral-200 dark:border-neutral-700 rounded-lg overflow-hidden shadow-sm">
         <thead className="bg-neutral-100 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200 uppercase text-xs">
           <tr>
             <th className="px-4 py-2 border-b border-neutral-200 dark:border-neutral-700 text-left">
@@ -87,6 +89,12 @@ export default function ClassTypesTable({ classTypes }) {
                     className="hover:text-red-500 transition cursor-pointer"
                     onClick={() => handleDeleteClassType(type._id)}
                   />
+                  <Link href={`/admin/dashboard/class-types/files/${type._id}`}>
+                    <LuFileStack className="hover:text-yellow-500 transition cursor-pointer" />
+                  </Link>
+                  <Link href={`/admin/dashboard/files/ClassTypes/${type._id}/add`}>
+                    <FaFileCirclePlus className="hover:text-blue-500 transition cursor-pointer" />
+                  </Link>
                 </div>
               </td>
             </tr>

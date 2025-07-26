@@ -19,7 +19,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           username: credentials.username,
         }).lean();
 
+        if (!user) {
+          console.log("No user found with that username.");
+          return null;
+        }
+        
         if (!user.passwordHash) {
+          console.log("User found, but no password is set.");
           return null;
         }
 
@@ -36,11 +42,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             roles: user.roles,
           };
         } else {
+          console.log("Password validation failed.");
           return null;
         }
       },
     }),
   ],
+  session: {
+    strategy: "jwt",
+  },
   pages: {
     signIn: "/auth/login",
   },
@@ -55,7 +65,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return token;
     },
     async session({ session, token }) {
-      if (token) {
+      if (token && session.user) {
         session.user.id = token.id;
         session.user.name = token.name;
         session.user.email = token.email;

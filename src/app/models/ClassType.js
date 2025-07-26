@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import connectDB from "../config/mongodb";
+import connectDB from "@/app/config/mongodb";
 
 const ClassTypeSchema = new mongoose.Schema({
   title: {

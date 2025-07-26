@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { User } from "@/app/models/User";
+import { UserSchema } from "@/app/models/User";
 import bcrypt from "bcryptjs";
 import connectDB from "@/app/config/mongodb";
 
@@ -15,7 +15,7 @@ export const authOptions = {
       async authorize(credentials) {
         await connectDB();
 
-        const user = await User.findOne({ username: credentials.username });
+        const user = await UserSchema.findOne({ username: credentials.username });
 
         if (!user) {
           return null;
