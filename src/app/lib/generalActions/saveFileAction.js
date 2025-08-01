@@ -20,7 +20,6 @@ export async function saveFileAction(currentState, formData) {
 
   const fileSchema = await getFileModel();
   try {
-    
     const createdFile = await fileSchema.create({
       title,
       description,
@@ -37,7 +36,7 @@ export async function saveFileAction(currentState, formData) {
       switch (relatedToType) {
         case "ClassTypes":
           model = await getClassTypeModel();
-          
+
           break;
         case "Class":
           model = "";
@@ -48,10 +47,14 @@ export async function saveFileAction(currentState, formData) {
         default:
           break;
       }
-      
-      const fileParent = await getItemById(model, relatedToId);
-      fileParent.files.push(createdFile._id);
-      await fileParent.save();
+
+      if (model) {
+        const fileParent = await getItemById(model, relatedToId);
+        if (fileParent) {
+          fileParent.files.push(createdFile._id);
+          await fileParent.save();
+        }
+      }
     }
 
     return { success: true, message: "Arquivo recebido com sucesso!" };

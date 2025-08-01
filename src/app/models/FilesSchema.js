@@ -32,9 +32,9 @@ FileSchema.pre("save", function (next) {
 const getFileModel = async () => {
   await connectDB();
   if (process.env.NODE_ENV === "development") {
-    delete mongoose.connection.models["FileSchema"];
+    delete mongoose.connection.models["File"];
   }
-  return mongoose.models.FileSchema || mongoose.model("FileSchema", FileSchema);
+  return mongoose.model("File", FileSchema);
 };
 
 export { FileSchema, getFileModel };

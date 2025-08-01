@@ -3,6 +3,7 @@ import PageSectionTitle from "@/app/(protected)/components/shared/PageSectionTit
 import ClassTypesTable from "./ClassTypesTable";
 import SimplePageInnerTitle from "@/app/(protected)/components/shared/SimplePageInnerTitle";
 
+
 export default async function classTypeFilesPage() {
   const res = await fetch("http://localhost:3000/api/classtypes", {
     cache: "no-store",
@@ -16,7 +17,6 @@ export default async function classTypeFilesPage() {
 }
 
 export default async function ClassTypesPage() {
-  const classTypes = await getClassTypes();
   return (
     <>
       <div className="w-full mt-3">

@@ -4,7 +4,6 @@ import { getClassTypeModel } from "@/app/models/ClassType";
 import { deleteById } from "@/app/lib/helpers/deleteById";
 
 export async function deleteClassTypeAction({_id}) {
-  console.log("TIPO DE CLASSE: ", _id)
 
   if (!_id) {
     return {
