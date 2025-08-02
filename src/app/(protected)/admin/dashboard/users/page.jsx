@@ -1,5 +1,6 @@
 import PageSectionTitle from "@/app/(protected)/components/shared/PageSectionTitle";
 import SimplePageInnerTitle from "@/app/(protected)/components/shared/SimplePageInnerTitle";
+import UsersTable from "./components/UsersTable";
 
 async function getUsers() {
   const res = await fetch("http://localhost:3000/api/users", {
@@ -31,6 +32,7 @@ export default async function UsersAdminPage() {
             <SimplePageInnerTitle title="Usuários" />
           </div>
         </div>
+        <UsersTable users={users}/>
       </div>
     </>
   );

@@ -3,7 +3,6 @@ import ClassTypeForm from "@/app/(protected)/admin/dashboard/class-types/ClassTy
 
 export default async function EditClassTypePage({ params }) {
   const id = params.id;
-  console.log("params:", params)
 
   const ClassType = await getClassTypeModel();
   const classType = await ClassType.findById(id).lean();

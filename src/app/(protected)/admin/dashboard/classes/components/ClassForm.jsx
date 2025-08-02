@@ -142,35 +142,7 @@ function ClassForm({ classData = {}, onCancel }) {
           />
         </div>
 
-        <div className="mb-4">
-          <label htmlFor="files" className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
-            Arquivos:
-          </label>
-          <input
-            type="text"
-            id="files"
-            name="files"
-            defaultValue={classData.files?.map(f => f._id).join(",") || ""}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:border-gray-600"
-            placeholder="IDs dos Arquivos (separados por vírgula)"
-          />
-        </div>
-
-        <div className="mb-6">
-          <label htmlFor="status" className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
-            Status:
-          </label>
-          <select
-            id="status"
-            name="status"
-            defaultValue={classData.status || "active"}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:border-gray-600"
-          >
-            <option value="active">Ativo</option>
-            <option value="completed">Concluído</option>
-            <option value="cancelled">Cancelado</option>
-          </select>
-        </div>
+        <input type="hidden" name="status" value="active" />
 
         <div className="flex items-center justify-between">
           <button

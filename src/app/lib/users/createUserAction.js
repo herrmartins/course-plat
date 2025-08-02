@@ -1,6 +1,6 @@
 "use server";
 
-import { getUserModel } from "../models/User";
+import { getUserModel } from "@/app/models/User";
 import bcrypt from "bcryptjs";
 
 export default async function saveUserData(currentState, formData) {

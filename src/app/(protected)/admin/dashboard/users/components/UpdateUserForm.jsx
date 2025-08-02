@@ -1,21 +1,64 @@
 "use client";
-import { useState, useActionState } from "react";
-import saveUserData from "@/app/lib/users/createUserAction";
+
+import { useState, useActionState, useEffect } from "react";
+import updateUserData from "@/app/lib/users/updateUserAction";
 
 const initialState = {
   success: false,
   message: "",
+  inputs: {},
 };
 
-function RegisterForm() {
-  const [state, action, isPending] = useActionState(saveUserData, initialState);
-  /* const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState(""); */
+function UpdateUserForm({ user }) {
+  const [state, action, isPending] = useActionState(
+    updateUserData,
+    initialState
+  );
+
+  const [selectedRoles, setSelectedRoles] = useState(
+    user?.roles || ["student"]
+  );
+
+  useEffect(() => {
+    if (user && JSON.stringify(user.roles) !== JSON.stringify(selectedRoles)) {
+      setSelectedRoles(user.roles);
+    }
+    console.log("Selected roles no useEffect 1: ", selectedRoles);
+  }, [user]);
+
+  useEffect(() => {
+    if (state?.inputs && state?.inputs?.roles) {
+      if (
+        JSON.stringify(state?.inputs?.roles) !== JSON.stringify(selectedRoles)
+      ) {
+        setSelectedRoles(state?.inputs?.roles);
+      }
+    }
+
+    console.log("Selected roles no useEffect 2: ", selectedRoles);
+
+  }, [state?.inputs]);
+
+  const handleChange = (event) => {
+    const options = event.target.options;
+    const newSelectedRoles = [];
+    for (let i = 0; i < options.length; i++) {
+      if (options[i].selected) {
+        newSelectedRoles.push(options[i].value);
+      }
+    }
+    setSelectedRoles(newSelectedRoles);
+  };
 
   return (
     <div className="mt-3 bg-gray-200 dark:bg-gray-800 p-3 rounded-2xl md:w-150">
-      <p className={`${state.success ? 'text-green-500' : 'text-red-600'} p-3`}>{state.message}</p>
+      <p
+        className={`${state?.success ? "text-green-500" : "text-red-600"} p-3`}
+      >
+        {state?.message}
+      </p>
       <form action={action}>
+        <input type="hidden" name="_id" value={user._id} />
         <div className="mb-4">
           <label
             htmlFor="fullName"
@@ -30,7 +73,7 @@ function RegisterForm() {
             className="w-full px-3 py-2 rounded-md border border-neutral-300 dark:border-neutral-600
                        bg-neutral-50 dark:bg-neutral-700 text-neutral-800 dark:text-white
                        focus:outline-none focus:ring-2 focus:ring-sky-500"
-            defaultValue={state?.inputs?.fullName}
+            defaultValue={user.fullName || state?.inputs?.fullName}
           />
         </div>
 
@@ -48,7 +91,7 @@ function RegisterForm() {
             className="w-full px-3 py-2 rounded-md border border-neutral-300 dark:border-neutral-600
                        bg-neutral-50 dark:bg-neutral-700 text-neutral-800 dark:text-white
                        focus:outline-none focus:ring-2 focus:ring-sky-500"
-            defaultValue={state?.inputs?.username}
+            defaultValue={user.username || state?.inputs?.username}
           />
         </div>
 
@@ -63,48 +106,13 @@ function RegisterForm() {
             type="email"
             id="email"
             name="email"
-            required
             className="w-full px-3 py-2 rounded-md border border-neutral-300 dark:border-neutral-600
                        bg-neutral-50 dark:bg-neutral-700 text-neutral-800 dark:text-white
                        focus:outline-none focus:ring-2 focus:ring-sky-500"
-            defaultValue={state?.inputs?.email}
+            defaultValue={user.email || state?.inputs?.email}
           />
         </div>
 
-        <div className="mb-4">
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
-          >
-            Senha
-          </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            required
-            className="w-full px-3 py-2 rounded-md border border-neutral-300 dark:border-neutral-600
-                       bg-neutral-50 dark:bg-neutral-700 text-neutral-800 dark:text-white
-                       focus:outline-none focus:ring-2 focus:ring-sky-500"
-          />
-        </div>
-        <div className="mb-4">
-          <label
-            htmlFor="confirmPassword"
-            className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
-          >
-            Confirmar senha
-          </label>
-          <input
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            required
-            className="w-full px-3 py-2 rounded-md border border-neutral-300 dark:border-neutral-600
-               bg-neutral-50 dark:bg-neutral-700 text-neutral-800 dark:text-white
-               focus:outline-none focus:ring-2 focus:ring-sky-500"
-          />
-        </div>
         <div className="mb-4">
           <label
             htmlFor="dateOfBirth"
@@ -120,18 +128,48 @@ function RegisterForm() {
             className="w-full px-3 py-2 rounded-md border border-neutral-300 dark:border-neutral-600
                        bg-neutral-50 dark:bg-neutral-700 text-neutral-800 dark:text-white
                        focus:outline-none focus:ring-2 focus:ring-sky-500"
-            defaultValue={state?.inputs?.dateOfBirth}
+            defaultValue={
+              user.dateOfBirth
+                ? new Date(user.dateOfBirth).toISOString().split("T")[0]
+                : state?.inputs?.dateOfBirth
+            }
           />
+        </div>
+
+        <div className="mb-4">
+          <label
+            htmlFor="roles"
+            className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
+          >
+            Funções
+          </label>
+          <select
+            id="roles"
+            name="roles"
+            multiple
+            required
+            className="w-full px-3 py-2 rounded-md border border-neutral-300 dark:border-neutral-600
+                 bg-neutral-50 dark:bg-neutral-700 text-neutral-800 dark:text-white
+                 focus:outline-none focus:ring-2 focus:ring-sky-500"
+            value={selectedRoles}
+            onChange={handleChange}
+          >
+            <option value="student">Estudante</option>
+            <option value="parent">Responsável</option>
+            <option value="teacher">Professor</option>
+            <option value="admin">Administrador</option>
+          </select>
         </div>
 
         <input
           type="submit"
-          value="Cadastrar"
+          value="Atualizar"
           className="px-4 py-2 rounded-md bg-sky-600 text-white hover:bg-sky-700 cursor-pointer"
+          disabled={isPending}
         />
       </form>
     </div>
   );
 }
 
-export default RegisterForm;
+export default UpdateUserForm;
