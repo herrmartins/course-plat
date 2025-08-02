@@ -22,11 +22,11 @@ function AdminDashboard() {
         />
 
         <DashboardCard
-          title="Turmas Ativas"
-          description="Gerencie as turmas ativas atualmente."
+          title="Turmas"
+          description="Gerencie as turmas ativas atualmente, bem como as arquivadas."
           buttonText="Gerenciar"
           buttonColor="green"
-          link="/"
+          link="/admin/dashboard/classes"
         />
 
         <DashboardCard
