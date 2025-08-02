@@ -1,6 +1,5 @@
 import Link from "next/link";
 import PageSectionTitle from "@/app/(protected)/components/shared/PageSectionTitle";
-import ClassTypesTable from "./ClassTypesTable";
 import SimplePageInnerTitle from "@/app/(protected)/components/shared/SimplePageInnerTitle";
 
 

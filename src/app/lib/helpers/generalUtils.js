@@ -5,3 +5,11 @@ export const relatedToTitle = (name) => {
   };
   return types[name] || "Avulso";
 };
+
+export const relatedToTitleUrl = (name) => {
+  const types = {
+    ClassTypes: "class-types",
+    Class: "class",
+  };
+  return types[name] || "loose";
+};

@@ -7,10 +7,7 @@ function AddFileClass() {
     <>
       <div className="flex flex-col w-full">
         <div>
-          <PageSectionTitle
-            title="Adicionar Arquivo"
-            className="mb-8"
-          />
+          <PageSectionTitle title="Adicionar Arquivo" className="mb-8" />
         </div>
         <FileUploadComponent />
       </div>
