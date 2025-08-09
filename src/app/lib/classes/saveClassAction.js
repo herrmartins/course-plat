@@ -3,20 +3,39 @@
 import { getClassModel } from "@/app/models/Class";
 
 export default async function saveClassAction(currentState, formData) {
+  console.log([...formData.entries()])
   const id = formData.get("_id");
+
   const classType = formData.get("classType");
-  const teacher = formData.get("teacher");
-  const students = formData.get("students")?.split(",").filter(Boolean);
-  const startDate = formData.get("startDate");
-  const endDate = formData.get("endDate");
-  const days = formData.get("days")?.split(",").filter(Boolean);
-  const time = formData.get("time");
-  const files = formData.get("files")?.split(",").filter(Boolean);
-  const status = formData.get("status");
+  const teachers = formData.getAll("teachers");
+  const students = formData.getAll("students");
+
+  const startDate = formData.get("startDate") || null;
+  const endDate = formData.get("endDate") || null;
+
+  const daysStr = formData.get("days");
+  const days = daysStr
+    ? daysStr
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+    : [];
+
+  const time = formData.get("time") || null;
+
+  const filesStr = formData.get("files");
+  const files = filesStr
+    ? filesStr
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+    : [];
+
+  const status = formData.get("status") || "active";
 
   const rawData = {
     classType,
-    teacher,
+    teachers,
     students,
     startDate,
     endDate,
@@ -25,47 +44,66 @@ export default async function saveClassAction(currentState, formData) {
     status,
   };
 
-  function isBlank(value) {
-    return value === null || value === "" || (Array.isArray(value) && value.length === 0);
-  }
+  console.log("Raw data:", rawData)
 
-  if (isBlank(classType) || isBlank(teacher) || isBlank(startDate) || isBlank(time)) {
+  const isBlank = (v) =>
+    v == null || v === "" || (Array.isArray(v) && v.length === 0);
+
+  if (
+    isBlank(classType) ||
+    isBlank(teachers) ||
+    isBlank(startDate) ||
+    isBlank(time)
+  ) {
     return {
       success: false,
-      message: "Tipo de classe, professor, data de início e horário são obrigatórios.",
+      message:
+        "Tipo de classe, professor, data de início e horário são obrigatórios.",
+      inputs: rawData,
+    };
+  }
+  if (endDate && startDate && new Date(endDate) < new Date(startDate)) {
+    return {
+      success: false,
+      message: "Data de término não pode ser anterior à data de início.",
       inputs: rawData,
     };
   }
 
   try {
-    const classModel = await getClassModel();
-    if (id) {
-      await classModel.updateOne(
-        { _id: id },
-        { classType, teacher, students, startDate, endDate, schedule: { days, time }, files, status }
-      );
-    } else {
-      await classModel.create({
-        classType,
-        teacher,
-        students,
-        startDate,
-        endDate,
-        schedule: { days, time },
-        files,
-        status,
-      });
-    }
+    const Class = await getClassModel();
+    const payload = {
+      classType,
+      teachers,
+      students,
+      startDate,
+      endDate,
+      schedule: { days, time },
+      files,
+      status,
+    };
 
-    return {
-      success: true,
-      redirectTo: "/admin/dashboard/classes",
-    };
-  } catch (e) {
-    return {
-      success: false,
-      message: `Erro: ${e.message}`,
-      inputs: rawData,
-    };
+    if (id) {
+      await Class.updateOne({ _id: id }, payload, { runValidators: true });
+    } else {
+      console.log("Vou salvar...")
+      await Class.create(payload);
+      console.log("Salvei...")
+    }
+    console.log("To aqui..", payload)
+    return { success: true, redirectTo: "/admin/dashboard/classes" };
+  } catch (err) {
+    console.log("Erro: ", err)
+    if (err.name === "ValidationError") {
+      return {
+        success: false,
+        message: "Erro de validação, verifique se os dados foram escritos corretamente...",
+        fieldErrors: Object.fromEntries(
+          Object.entries(err.errors).map(([field, e]) => [field, e.message])
+        ),
+        inputs: rawData,
+      };
+    }
+    return { success: false, message: `Erro: ${err.message}`, inputs: rawData };
   }
 }

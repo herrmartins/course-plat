@@ -1,68 +1,92 @@
-import mongoose from "mongoose";
-import connectDB from "@/app/config/mongodb";
+// app/models/Class.js
+import 'server-only';
+import mongoose from 'mongoose';
+import connectDB from '@/app/config/mongodb';
 
-const ClassSchema = new mongoose.Schema({
-  classType: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "ClassType",
-    required: [true, "Selecione um tipo de classe."],
-  },
-  teacher: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: [true, "Favor selecionar professor."],
-  },
-  students: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-  }],
-  startDate: {
-    type: Date,
-    required: [true, "Please provide a start date."],
-  },
-  endDate: {
-    type: Date,
-  },
-  schedule: {
-    days: [{
-      type: String,
-      enum: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-    }],
+const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+const ScheduleSchema = new mongoose.Schema(
+  {
+    days: {
+      type: [String],
+      enum: DAYS,
+      validate: {
+        validator: (arr) => Array.isArray(arr) && arr.length > 0,
+        message: "Selecione ao menos um dia da semana.",
+      },
+    },
     time: {
       type: String,
       required: [true, "Please provide a time."],
     },
   },
-  files: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "File",
-  }],
-  status: {
-    type: String,
-    enum: ["active", "completed", "cancelled"],
-    default: "active",
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-  modifiedAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
+  { _id: false }
+);
 
-ClassSchema.pre("save", function (next) {
-  this.modifiedAt = Date.now();
-  next();
-});
-
-const getClassModel = async () => {
-  await connectDB();
-  if (process.env.NODE_ENV === "development") {
-    delete mongoose.connection.models["Class"];
+const ClassSchema = new mongoose.Schema(
+  {
+    classType: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ClassType",
+      required: [true, "Selecione um tipo de classe."],
+      index: true,
+    },
+    teachers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: [true, "Favor selecionar professor."],
+        index: true,
+      }
+    ],
+    students: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        index: true,
+      },
+    ],
+    startDate: {
+      type: Date,
+      required: [true, "Please provide a start date."],
+    },
+    endDate: {
+      type: Date,
+      validate: {
+        validator: function (val) {
+          if (!val) return true;
+          if (!this.startDate) return true;
+          return val >= this.startDate;
+        },
+        message: "Data de término não pode ser anterior à data de início.",
+      },
+    },
+    schedule: {
+      type: ScheduleSchema,
+      required: true,
+    },
+    files: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "File",
+      },
+    ],
+    status: {
+      type: String,
+      enum: ["active", "completed", "cancelled"],
+      default: "active",
+      index: true,
+    },
+  },
+  {
+    timestamps: { createdAt: 'createdAt', updatedAt: 'modifiedAt' },
   }
-  return mongoose.models.Class || mongoose.model("Class", ClassSchema);
-};
+);
 
-export { ClassSchema, getClassModel };
+ClassSchema.index({ classType: 1, status: 1 });
+ClassSchema.index({ teacher: 1, status: 1 });
+
+export async function getClassModel() {
+  await connectDB();
+  return mongoose.models.Class || mongoose.model("Class", ClassSchema);
+}
