@@ -1,7 +1,13 @@
-'use client';
-import { useState } from 'react';
-import { Combobox } from '@headlessui/react';
-import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/24/solid';
+"use client";
+import { useState } from "react";
+import {
+  Combobox,
+  ComboboxInput,
+  ComboboxOption,
+  ComboboxOptions,
+  ComboboxButton,
+} from "@headlessui/react";
+import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/24/solid";
 
 const DAYS = [
   "Monday",
@@ -14,61 +20,75 @@ const DAYS = [
 ];
 
 export default function DaysMultiSelect({ defaultSelectedDays = [] }) {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [selected, setSelected] = useState(
-    DAYS.filter(day => defaultSelectedDays.includes(day))
+    DAYS.filter((day) => defaultSelectedDays.includes(day))
   );
 
   const filtered = query
-    ? DAYS.filter(day => day.toLowerCase().includes(query.toLowerCase()))
+    ? DAYS.filter((day) => day.toLowerCase().includes(query.toLowerCase()))
     : DAYS;
 
   return (
     <div>
-      <label
-        className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2"
-      >
+      <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
         Dias da Semana:
       </label>
 
-      <Combobox value={selected} onChange={setSelected} multiple>
+      <Combobox multiple value={selected} onChange={setSelected} onClose={() => setQuery('')}>
         <div className="relative">
-          <div className="relative w-full cursor-default overflow-hidden rounded border
+          <div
+            className="relative w-full cursor-default overflow-hidden rounded border
                           border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700
-                          text-left focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            <Combobox.Input
+                          text-left focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            {selected.map((d) => (
+              <span
+                key={d}
+                className="flex items-center gap-1 rounded-full bg-indigo-100 px-2 py-0.5 text-xs text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-200"
+              >
+                {d}
+                <button
+                  type="button"
+                  className="rounded p-0.5 hover:bg-indigo-200 dark:hover:bg-indigo-800"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => remove(d)}
+                  aria-label={`Remover ${d}`}
+                >
+                  <CheckIcon className="h-3 w-3" />
+                </button>
+              </span>
+            ))}
+            <ComboboxInput aria-label="days"
               className="w-full border-none py-2 pl-3 pr-8 text-gray-900 dark:text-gray-200 bg-transparent focus:outline-none"
-              displayValue={(vals) => vals.join(', ')}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Selecione os dias..."
             />
-            <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
+            <ComboboxButton className="absolute inset-y-0 right-0 flex items-center pr-2">
               <ChevronUpDownIcon className="h-5 w-5 text-gray-400" />
-            </Combobox.Button>
+            </ComboboxButton>
           </div>
 
-          <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded
+          <ComboboxOptions anchor="bottom"
+            className="absolute z-10 mt-1 max-h-60 max-w-100 overflow-auto rounded
                                         border border-gray-200 dark:border-gray-600
-                                        bg-white dark:bg-gray-800 shadow-lg">
+                                        bg-white dark:bg-gray-800 shadow-lg"
+          >
             {filtered.map((day) => (
-              <Combobox.Option
+              <ComboboxOption
                 key={day}
                 value={day}
-                className={({ active }) =>
-                  `cursor-pointer select-none px-3 py-2 ${
-                    active ? 'bg-indigo-100 dark:bg-indigo-600 dark:text-white' : ''
-                  }`
-                }
+                className="data-[focus]:bg-indigo-100 data-[focus]:dark:bg-indigo-600 data-[focus]:dark:text-white cursor-pointer select-none px-3 py-2"
               >
                 {({ selected }) => (
                   <div className="flex items-center justify-between">
                     <span>{day}</span>
-                    {selected && <CheckIcon className="h-4 w-4" />}
+                    {selected && <CheckIcon className="ml-1 h-4 w-4" />}
                   </div>
                 )}
-              </Combobox.Option>
+              </ComboboxOption>
             ))}
-          </Combobox.Options>
+          </ComboboxOptions>
         </div>
       </Combobox>
 

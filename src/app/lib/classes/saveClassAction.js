@@ -1,109 +1,129 @@
 "use server";
 
 import { getClassModel } from "@/app/models/Class";
+import { revalidatePath } from "next/cache";
+import { redirect, RedirectType } from "next/navigation";
+import z from "zod";
+
+const classTypeSchema = z.object({
+  _id: z.string({ invalid_type_error: "Classe não encontrada" }).optional(),
+  classTitle: z.string({ invalid_type_error: "Título inválido" }),
+  classType: z.string({ invalid_type_error: "Tipo de Classe Inválido" }),
+  teachers: z.array(z.string({ invalid_type_error: "Professores inválidos" })),
+  students: z.array(z.string({ invalid_type_error: "Alunos inválidos" })),
+  startDate: z
+    .string()
+    .transform((str) => new Date(str))
+    .optional(),
+  endDate: z
+    .string()
+    .transform((str) => new Date(str))
+    .optional(),
+  schedule: z
+    .object({
+      days: z
+        .array(z.string({ invalid_type_error: "Dias inválidos" }))
+        .optional(),
+      time: z.string({ invalid_type_error: "Horário incorreto" }),
+    })
+    .optional(),
+  status: z.string({ invalid_type_error: "Status incorreto" }),
+});
 
 export default async function saveClassAction(currentState, formData) {
-  console.log([...formData.entries()])
-  const id = formData.get("_id");
+  const days = formData.getAll("days") || [];
+  const time = formData.get("time") || undefined;
 
-  const classType = formData.get("classType");
-  const teachers = formData.getAll("teachers");
-  const students = formData.getAll("students");
-
-  const startDate = formData.get("startDate") || null;
-  const endDate = formData.get("endDate") || null;
-
-  const daysStr = formData.get("days");
-  const days = daysStr
-    ? daysStr
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean)
-    : [];
-
-  const time = formData.get("time") || null;
-
-  const filesStr = formData.get("files");
-  const files = filesStr
-    ? filesStr
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean)
-    : [];
-
-  const status = formData.get("status") || "active";
-
-  const rawData = {
-    classType,
-    teachers,
-    students,
-    startDate,
-    endDate,
-    schedule: { days, time },
-    files,
-    status,
+  const data = {
+    _id: formData.get("_id") || undefined,
+    classTitle: formData.get("classTitle") || undefined,
+    classType: formData.get("classType") || undefined,
+    teachers: formData.getAll("teachers"),
+    students: formData.getAll("students"),
+    startDate: formData.get("startDate") || undefined,
+    endDate: formData.get("endDate") || undefined,
+    schedule: {
+      days,
+      time,
+    },
+    status: formData.get("status") || undefined,
   };
 
-  console.log("Raw data:", rawData)
+  const validatedFields = classTypeSchema.safeParse(data);
+
+  if (!validatedFields.success) {
+    const validationErrors = z.flattenError(validatedFields.error);
+
+    return {
+      success: false,
+      message: `Erro: ${JSON.stringify(validationErrors)}`,
+      inputs: data,
+    };
+  }
+
+  const id = formData.get("_id");
 
   const isBlank = (v) =>
     v == null || v === "" || (Array.isArray(v) && v.length === 0);
 
   if (
-    isBlank(classType) ||
-    isBlank(teachers) ||
-    isBlank(startDate) ||
+    isBlank(data.classTitle) ||
+    isBlank(data.classType) ||
+    isBlank(data.teachers) ||
+    isBlank(data.startDate) ||
     isBlank(time)
   ) {
     return {
       success: false,
       message:
-        "Tipo de classe, professor, data de início e horário são obrigatórios.",
-      inputs: rawData,
+        "Tipo de classe, título da classe, professor, data de início e horário são obrigatórios.",
+      inputs: {
+        ...data,
+        days,
+        time,
+      },
     };
   }
-  if (endDate && startDate && new Date(endDate) < new Date(startDate)) {
+  if (
+    data?.endDate &&
+    data?.startDate &&
+    new Date(data?.endDate) < new Date(data?.startDate)
+  ) {
     return {
       success: false,
       message: "Data de término não pode ser anterior à data de início.",
-      inputs: rawData,
+      inputs: data,
     };
   }
-
+  // return {
+  //   success: false,
+  //   message: "ERRO PARA TESTES",
+  //   inputs: {
+  //     ...data,
+  //     days,
+  //     time,
+  //   },
+  // };
   try {
     const Class = await getClassModel();
-    const payload = {
-      classType,
-      teachers,
-      students,
-      startDate,
-      endDate,
-      schedule: { days, time },
-      files,
-      status,
-    };
 
     if (id) {
-      await Class.updateOne({ _id: id }, payload, { runValidators: true });
+      await Class.updateOne({ _id: id }, data, { runValidators: true });
     } else {
-      console.log("Vou salvar...")
-      await Class.create(payload);
-      console.log("Salvei...")
+      await Class.create(data);
     }
-    console.log("To aqui..", payload)
-    return { success: true, redirectTo: "/admin/dashboard/classes" };
   } catch (err) {
-    console.log("Erro: ", err)
     if (err.name === "ValidationError") {
       return {
         success: false,
-        message: "Erro de validação, verifique se os dados foram escritos corretamente...",
-        fieldErrors: Object.fromEntries(
-          Object.entries(err.errors).map(([field, e]) => [field, e.message])
-        ),
-        inputs: rawData,
+        message:
+          "Erro de validação, verifique se os dados foram escritos corretamente...",
+        err,
+        inputs: data,
       };
     }
-    return { success: false, message: `Erro: ${err.message}`, inputs: rawData };
   }
+
+  revalidatePath("/admin/dashboard/classes/");
+  redirect("/admin/dashboard/classes", RedirectType.replace);
 }

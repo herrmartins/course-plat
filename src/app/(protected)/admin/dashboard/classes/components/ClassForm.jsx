@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import { useActionState } from "react";
 import saveClassAction from "@/app/lib/classes/saveClassAction";
 import FlashMessage from "@/app/(protected)/components/shared/FlashMessage";
-import { useRouter } from "next/navigation";
 import UsersMultiSelect from "./StudentsMultiSelect";
 import DaysMultiSelect from "./DaysMultiSelect";
 
@@ -15,8 +14,6 @@ function ClassForm({
   teachers = [],
   students = [],
 }) {
-  const router = useRouter();
-  const [showMessage, setShowMessage] = useState(true);
   const initialState = { success: false, message: null };
 
   const [state, action, isPending] = useActionState(
@@ -24,31 +21,25 @@ function ClassForm({
     initialState
   );
 
-  useEffect(() => {
-    if (state.message) {
-      setShowMessage(true);
-      const timer = setTimeout(() => setShowMessage(false), 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [state.message]);
+  const initialData = classData
+    ? {
+        ...classData,
+        startDate: classData.startDate?.split("T")[0],
+        endDate: classData.endDate?.split("T")[0],
+      }
+    : {};
+
+  const [inputs, setInputs] = useState(state?.inputs || initialData || []);
 
   useEffect(() => {
-    if (state?.success && state.redirectTo) {
-      router.push(state.redirectTo);
+    if (state?.message) {
+      const timer = setTimeout(() => state.message = null, 5000);
+      return () => clearTimeout(timer);
     }
-  }, [state?.success, state?.redirectTo, router]);
+  }, [state?.message]);
 
   return (
     <div className="w-full">
-      {state?.message && showMessage && (
-        <div className="max-w-screen-xl mx-auto w-full">
-          <FlashMessage
-            message={state?.message}
-            type={state.success ? "success" : "error"}
-          />
-        </div>
-      )}
-
       <form
         action={action}
         className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md max-w-lg mx-auto"
@@ -58,7 +49,14 @@ function ClassForm({
         {classData._id && (
           <input type="hidden" name="_id" value={classData._id} />
         )}
-
+        {state?.message && (
+          <div className="max-w-screen-xl mx-auto w-full">
+            <FlashMessage
+              message={state?.message}
+              type={state.success ? "success" : "error"}
+            />
+          </div>
+        )}
         <div className="mb-4">
           <label
             htmlFor="classType"
@@ -72,9 +70,7 @@ function ClassForm({
               id="classType"
               name="classType"
               required
-              defaultValue={
-                classData.classType?._id || state?.inputs?.classType || ""
-              }
+              defaultValue={inputs?.classType || ""}
               className="shadow appearance-none border rounded w-full py-2 pl-3 pr-10
                  text-gray-700 dark:text-gray-200 leading-tight
                  focus:outline-none focus:shadow-outline
@@ -115,19 +111,30 @@ function ClassForm({
         </div>
 
         <div className="mb-4">
+          <label
+            htmlFor="title"
+            className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2"
+          >
+            Título:
+          </label>
+          <input
+            type="text"
+            id="classTitle"
+            name="classTitle"
+            defaultValue={inputs?.classTitle || ""}
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:border-gray-600"
+            placeholder="Classe 1 Semestre 2025 Starters 1"
+          />
+        </div>
+
+        <div className="mb-4">
           <UsersMultiSelect
             label="Professores"
             inputName="teachers"
             users={teachers}
-            defaultSelectedIds={
-              (
-                classData.teachers ||
-                (state?.inputs?.teachers
-                  ? state.inputs.teachers
-                  : []) ||
-                []
-              ).map((t) => (typeof t === "string" ? t : t._id))
-            }
+            defaultSelectedIds={(inputs?.teachers || []).map((t) =>
+              typeof t === "string" ? t : t._id
+            )}
           />
         </div>
 
@@ -136,15 +143,9 @@ function ClassForm({
             label="Alunos"
             inputName="students"
             users={students}
-            defaultSelectedIds={
-              (
-                classData.students ||
-                (state?.inputs?.students
-                  ? state.inputs.students
-                  : []) ||
-                []
-              ).map((s) => (typeof s === "string" ? s : s._id))
-            }
+            defaultSelectedIds={(inputs?.students || []).map((s) =>
+              typeof s === "string" ? s : s._id
+            )}
           />
         </div>
 
@@ -160,9 +161,7 @@ function ClassForm({
             id="startDate"
             name="startDate"
             defaultValue={
-              classData.startDate?.split("T")[0] ||
-              state?.inputs?.startDate ||
-              ""
+              inputs?.startDate || ""
             }
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:border-gray-600"
           />
@@ -180,7 +179,7 @@ function ClassForm({
             id="endDate"
             name="endDate"
             defaultValue={
-              classData.endDate?.split("T")[0] || state?.inputs?.endDate || ""
+              inputs?.endDate || ""
             }
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:border-gray-600"
           />
@@ -189,7 +188,7 @@ function ClassForm({
         <div className="mb-4">
           <DaysMultiSelect
             defaultSelectedDays={
-              classData.schedule?.days || state?.inputs?.schedule?.days || []
+              inputs?.schedule?.days || []
             }
           />
         </div>
@@ -205,7 +204,7 @@ function ClassForm({
             type="text"
             id="time"
             name="time"
-            defaultValue={classData.schedule?.time || state?.inputs?.time || ""}
+            defaultValue={inputs?.schedule?.time || ""}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:border-gray-600"
             placeholder="Ex: 14:00"
           />

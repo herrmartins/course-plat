@@ -1,28 +1,18 @@
 import Link from "next/link";
 import PageSectionTitle from "@/app/(protected)/components/shared/PageSectionTitle";
 import SimplePageInnerTitle from "@/app/(protected)/components/shared/SimplePageInnerTitle";
-
-async function getClassTypes() {
-  const res = await fetch("http://localhost:3000/api/classes", {
-    cache: "no-store",
-  });
-
-  if (!res.ok) {
-    console.error("Falha ao buscar turmas:", res.statusText);
-    return [];
-  }
-  return res.json();
-}
+import { getClassModel } from "@/app/models/Class";
+import ClassesTable from "./components/ClassesTable";
 
 export default async function ClassesPage() {
+  const Classes = await getClassModel();
+  const classes = await Classes.find({}).lean();
+
   return (
     <>
       <div className="w-full mt-3">
         <div>
-          <PageSectionTitle
-            title="Gerenciar Turmas"
-            className="mx-5"
-          />
+          <PageSectionTitle title="Gerenciar Turmas" className="mx-5" />
         </div>
         <div className="flex justify-center">
           <Link href="/admin/dashboard/classes/add">
@@ -35,6 +25,7 @@ export default async function ClassesPage() {
           <div className="flex justify-center">
             <SimplePageInnerTitle title="Turmas" />
           </div>
+          <ClassesTable classes={classes} />
         </div>
       </div>
     </>

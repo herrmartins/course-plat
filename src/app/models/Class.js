@@ -1,9 +1,15 @@
-// app/models/Class.js
-import 'server-only';
-import mongoose from 'mongoose';
-import connectDB from '@/app/config/mongodb';
+import mongoose from "mongoose";
+import connectDB from "@/app/config/mongodb";
 
-const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+const DAYS = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
 
 const ScheduleSchema = new mongoose.Schema(
   {
@@ -25,6 +31,10 @@ const ScheduleSchema = new mongoose.Schema(
 
 const ClassSchema = new mongoose.Schema(
   {
+    classTitle: {
+      type: String,
+      required: [true, "Favor adicionar um título."],
+    },
     classType: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "ClassType",
@@ -37,7 +47,7 @@ const ClassSchema = new mongoose.Schema(
         ref: "User",
         required: [true, "Favor selecionar professor."],
         index: true,
-      }
+      },
     ],
     students: [
       {
@@ -79,7 +89,7 @@ const ClassSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: { createdAt: 'createdAt', updatedAt: 'modifiedAt' },
+    timestamps: { createdAt: "createdAt", updatedAt: "modifiedAt" },
   }
 );
 
