@@ -6,8 +6,6 @@ const FileSchema = new mongoose.Schema({
   mimetype: { type: String },
   url: { type: String, required: true },
   size: { type: Number },
-  uploadedAt: { type: Date, default: Date.now },
-  modifiedAt: { type: Date, default: Date.now },
   relatedToId: { type: mongoose.Schema.Types.ObjectId, required: false },
   relatedToType: {
     type: String,
@@ -22,6 +20,8 @@ const FileSchema = new mongoose.Schema({
   },
 
   description: { type: String },
+  uploadedAt: { type: Date, default: Date.now },
+  modifiedAt: { type: Date, default: Date.now },
 });
 
 FileSchema.pre("save", function (next) {

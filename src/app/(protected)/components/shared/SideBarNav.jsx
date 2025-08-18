@@ -28,7 +28,7 @@ function SideBarNav() {
           >
             Gerenciar Tipos de Turma
           </SidebarNavItem>
-          <SidebarNavItem href="/admin/dashboard/classes" iconName="addClass">
+          <SidebarNavItem href="/admin/dashboard/class" iconName="addClass">
             Gerenciar Turmas
           </SidebarNavItem>
           <SidebarNavItem href="/admin/dashboard/users" iconName="manageUsers">

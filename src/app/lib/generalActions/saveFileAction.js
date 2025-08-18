@@ -1,10 +1,19 @@
 "use server";
 
 import { getFileModel } from "@/app/models/FilesSchema";
-import { uploadToCloudinary, deleteFromCloudinary } from "@/app/lib/utils/cloudinary";
-import { auth } from "../utils/auth";
-import { getItemById } from "../helpers/getItemById";
+import {
+  uploadToCloudinary,
+  deleteFromCloudinary,
+} from "@/app/lib/utils/cloudinary";
+import { auth } from "@/app/lib/utils/auth";
+import { getItemById } from "@/app/lib/helpers/getItemById";
 import { getClassTypeModel } from "@/app/models/ClassType";
+import { getClassModel } from "@/app/models/Class";
+import z from "zod";
+import { fileZodSchema } from "../schemas/fileZodSchema";
+import { revalidatePath } from "next/cache";
+import { redirect, RedirectType } from "next/navigation";
+import { relatedToTitleUrl } from "../helpers/generalUtils";
 
 export async function saveFileAction(currentState, formData) {
   const session = await auth();
@@ -12,7 +21,10 @@ export async function saveFileAction(currentState, formData) {
 
   const title = formData.get("title");
   const description = formData.get("description");
-  const file = formData.get("file") && formData.get("file").size > 0 ? formData.get("file") : null;
+  const file =
+    formData.get("file") && formData.get("file").size > 0
+      ? formData.get("file")
+      : null;
   const fileId = formData.get("id");
   const relatedToId = formData.get("relatedToId") || null;
   const relatedToType = formData.get("relatedToType") || null;
@@ -21,13 +33,13 @@ export async function saveFileAction(currentState, formData) {
     title,
     description,
     relatedToId,
-    relatedToType,
+    relatedToType
   };
 
-  if (!title || !description || (!fileId && !file)) {
+  if (!title || (!fileId && !file)) {
     return {
       success: false,
-      message: "Os campos são obrigatórios!",
+      message: "Os campos título e arquivo são obrigatórios!",
       inputs: rawData,
     };
   }
@@ -40,7 +52,8 @@ export async function saveFileAction(currentState, formData) {
     if (!fileToUpdate) {
       return {
         success: false,
-        message: "Arquivo não encontrado!",
+        message:
+          "Arquivo não encontrado, vá para o formulário de adicionar arquivo!",
         inputs: rawData,
       };
     }
@@ -85,11 +98,27 @@ export async function saveFileAction(currentState, formData) {
       uploadedBy: session.user.id,
     };
 
+    const validatedFields = fileZodSchema.safeParse(fileDataToSave);
+
+    if (!validatedFields.success) {
+        const validationErrors = z.flattenError(validatedFields.error);
+    
+        return {
+          success: false,
+          message: `Erro: ${validationErrors}`,
+          inputs: fileDataToSave,
+        };
+      }
+
     try {
       Object.assign(fileToUpdate, fileDataToSave);
       resultFile = await fileToUpdate.save();
-      
-      return { success: true, message: "Arquivo atualizado com sucesso!", inputs: {rawData} };
+
+      return {
+        success: true,
+        message: "Arquivo atualizado com sucesso!",
+        inputs: { rawData },
+      };
     } catch (err) {
       console.error("❌ File update failed:", {
         message: err.message,
@@ -99,18 +128,10 @@ export async function saveFileAction(currentState, formData) {
       return {
         success: false,
         message: "Erro ao atualizar o arquivo!",
-        inputs: rawData,
+        inputs: fileDataToSave,
       };
     }
   } else {
-    if (!file) {
-      return {
-        success: false,
-        message: "Arquivo é obrigatório para novos uploads!",
-        inputs: rawData,
-      };
-    }
-
     let cloudinaryResult;
     try {
       cloudinaryResult = await uploadToCloudinary(file, "iciv/ClassTypes");
@@ -153,7 +174,7 @@ export async function saveFileAction(currentState, formData) {
             model = await getClassTypeModel();
             break;
           case "Class":
-            model = "";
+            model = await getClassModel();
             break;
           case "Lesson":
             model = "";
@@ -171,7 +192,7 @@ export async function saveFileAction(currentState, formData) {
         }
       }
 
-      return { success: true, message: "Arquivo recebido com sucesso!" };
+      // return { success: true, message: "Arquivo recebido com sucesso!" };
     } catch (err) {
       console.error("❌ File creation failed:", {
         message: err.message,
@@ -185,5 +206,10 @@ export async function saveFileAction(currentState, formData) {
         inputs: rawData,
       };
     }
+    revalidatePath(`/admin/dashboard/${relatedToTitleUrl(relatedToType)}/files`);
+    redirect(
+      `/admin/dashboard/${relatedToTitleUrl(relatedToType)}/files/${relatedToId}`,
+      RedirectType.replace
+    );
   }
 }

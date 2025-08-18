@@ -3,7 +3,7 @@ export const relatedToTitle = (name) => {
     ClassType: "Tipo de Turma",
     Class: "Turma",
   };
-  return types[name] || "Avulso";
+  return types[name] || "avulso";
 };
 
 export const relatedToTitleUrl = (name) => {

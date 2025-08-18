@@ -63,7 +63,7 @@ const getUserModel = async () => {
   if (process.env.NODE_ENV === "development") {
     delete mongoose.connection.models["User"];
   }
-  return mongoose.models.UserSchema || mongoose.model("User", UserSchema);
+  return mongoose.models.User || mongoose.model("User", UserSchema);
 };
 
 export { UserSchema, getUserModel };

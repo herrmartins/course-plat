@@ -4,33 +4,14 @@ import { getClassModel } from "@/app/models/Class";
 import { revalidatePath } from "next/cache";
 import { redirect, RedirectType } from "next/navigation";
 import z from "zod";
-
-const classTypeSchema = z.object({
-  _id: z.string({ invalid_type_error: "Classe não encontrada" }).optional(),
-  classTitle: z.string({ invalid_type_error: "Título inválido" }),
-  classType: z.string({ invalid_type_error: "Tipo de Classe Inválido" }),
-  teachers: z.array(z.string({ invalid_type_error: "Professores inválidos" })),
-  students: z.array(z.string({ invalid_type_error: "Alunos inválidos" })),
-  startDate: z
-    .string()
-    .transform((str) => new Date(str))
-    .optional(),
-  endDate: z
-    .string()
-    .transform((str) => new Date(str))
-    .optional(),
-  schedule: z
-    .object({
-      days: z
-        .array(z.string({ invalid_type_error: "Dias inválidos" }))
-        .optional(),
-      time: z.string({ invalid_type_error: "Horário incorreto" }),
-    })
-    .optional(),
-  status: z.string({ invalid_type_error: "Status incorreto" }),
-});
+import { classSchema } from "@/app/lib/schemas/classSchema";
+import { getUserModel } from "@/app/models/User";
+import { getClassTypeModel } from "@/app/models/ClassType";
+import { DAYS } from "@/app/lib/utils/days";
+import { getItemById } from "../helpers/getItemById";
 
 export default async function saveClassAction(currentState, formData) {
+  console.log("DADOS: ", ...formData)
   const days = formData.getAll("days") || [];
   const time = formData.get("time") || undefined;
 
@@ -49,7 +30,7 @@ export default async function saveClassAction(currentState, formData) {
     status: formData.get("status") || undefined,
   };
 
-  const validatedFields = classTypeSchema.safeParse(data);
+  const validatedFields = classSchema.safeParse(data);
 
   if (!validatedFields.success) {
     const validationErrors = z.flattenError(validatedFields.error);
@@ -59,9 +40,73 @@ export default async function saveClassAction(currentState, formData) {
       message: `Erro: ${JSON.stringify(validationErrors)}`,
       inputs: data,
     };
-  }
+  } else {
+    const { teachers, students, classType, startDate, endDate, schedule } =
+      validatedFields.data;
 
-  const id = formData.get("_id");
+    try {
+      const User = await getUserModel();
+      const [teachersExist, studentsExist] = await Promise.all([
+        User.find({ _id: { $in: teachers } }),
+        User.find({ _id: { $in: students } }),
+      ]);
+
+      if (teachers.length !== teachersExist.length) {
+        return {
+          success: false,
+          message: "Erro: um ou mais professores não foram encontrados.",
+          inputs: validatedFields.data,
+        };
+      }
+
+      if (students.length !== studentsExist.length) {
+        return {
+          success: false,
+          message: "Erro: um ou mais alunos não foram encontrados.",
+          inputs: validatedFields.data,
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: `Erro ao verificar professores/alunos. ${error}`,
+      };
+    }
+    const ClassTypeModel = await getClassTypeModel();
+    try {
+      const classTypeExists = await getItemById(ClassTypeModel, classType);
+      if (!classTypeExists) {
+        return {
+          success: false,
+          message: "O tipo de turma selecionado não existe.",
+          inputs: validatedFields.data,
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: "Erro ao verificar o tipo de turma.",
+      };
+    }
+
+    if (endDate && startDate && new Date(endDate) < new Date(startDate)) {
+      return {
+        success: false,
+        message: "A data de término não pode ser anterior à data de início.",
+        inputs: validatedFields.data,
+      };
+    }
+    const {days} = schedule;
+
+    if (!days.every((day) => DAYS.includes(day))) {
+      return {
+        success: false,
+        message: "Erro ao processar os dias das aulas.",
+        inputs: validatedFields.data,
+      };
+    }
+
+  }
 
   const isBlank = (v) =>
     v == null || v === "" || (Array.isArray(v) && v.length === 0);
@@ -106,6 +151,7 @@ export default async function saveClassAction(currentState, formData) {
   // };
   try {
     const Class = await getClassModel();
+    const id = formData.get("_id");
 
     if (id) {
       await Class.updateOne({ _id: id }, data, { runValidators: true });
@@ -113,17 +159,14 @@ export default async function saveClassAction(currentState, formData) {
       await Class.create(data);
     }
   } catch (err) {
-    if (err.name === "ValidationError") {
-      return {
-        success: false,
-        message:
-          "Erro de validação, verifique se os dados foram escritos corretamente...",
-        err,
-        inputs: data,
-      };
-    }
+    return {
+      success: false,
+      message: `Erro ao criar ou alterar turma ${err}`,
+      err,
+      inputs: data,
+    };
   }
 
-  revalidatePath("/admin/dashboard/classes/");
-  redirect("/admin/dashboard/classes", RedirectType.replace);
+  revalidatePath("/admin/dashboard/class/");
+  redirect("/admin/dashboard/class", RedirectType.replace);
 }

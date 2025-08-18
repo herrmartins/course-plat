@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Combobox,
   ComboboxInput,
@@ -14,6 +14,7 @@ export default function UsersMultiSelect({
   inputName = "users[]",
   users = [],
   defaultSelectedIds = [],
+  onRemove,
 }) {
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState(
@@ -21,6 +22,13 @@ export default function UsersMultiSelect({
       .map((id) => users.find((us) => us._id === id))
       .filter(Boolean)
   );
+
+  useEffect(() => {
+    const newSelected = defaultSelectedIds
+      .map((id) => users.find((us) => us._id === id))
+      .filter(Boolean);
+    setSelected(newSelected);
+  }, [defaultSelectedIds, users]);
 
   const filtered =
     query === ""
@@ -56,7 +64,7 @@ export default function UsersMultiSelect({
                   type="button"
                   className="rounded p-0.5 hover:bg-indigo-200 dark:hover:bg-indigo-800"
                   onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => remove(u._id)}
+                  onClick={() => onRemove(u._id, inputName)}
                   aria-label={`Remover ${u.fullName}`}
                 >
                   <CheckIcon className="h-3 w-3" />

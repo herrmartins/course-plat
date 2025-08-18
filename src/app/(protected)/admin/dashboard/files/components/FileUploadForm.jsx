@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useActionState } from "react";
 import { saveFileAction } from "@/app/lib/generalActions/saveFileAction";
-import { relatedToTitleUrl } from "@/app/lib/helpers/generalUtils";
+import { relatedToTitleUrl, relatedToTitle } from "@/app/lib/helpers/generalUtils";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
@@ -35,7 +35,7 @@ export default function FileUploadComponent({
       const timer = setTimeout(() => {
         setShowMessage(false);
         if (file) {
-          const relatedToType = relatedToTitleUrl(file.relatedToType)
+          const relatedToType = relatedToTitleUrl(file.relatedToType);
           redirect(`/admin/dashboard/${relatedToType}/files/${file.relatedToId}`);
         } else {
              initialState.inputs = {};

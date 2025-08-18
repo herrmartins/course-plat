@@ -1,4 +1,4 @@
-import { ClassRow } from "@/app/(protected)/admin/dashboard/classes/components/classRow";
+import { ClassRow } from "@/app/(protected)/admin/dashboard/class/components/classRow";
 
 export default function ClassesTable({classes}) {
 

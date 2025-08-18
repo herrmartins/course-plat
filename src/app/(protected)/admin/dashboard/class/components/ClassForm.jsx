@@ -20,6 +20,7 @@ function ClassForm({
     saveClassAction,
     initialState
   );
+  const [showMessage, setShowMessage] = useState(false);
 
   const initialData = classData
     ? {
@@ -32,11 +33,31 @@ function ClassForm({
   const [inputs, setInputs] = useState(state?.inputs || initialData || []);
 
   useEffect(() => {
-    if (state?.message) {
-      const timer = setTimeout(() => state.message = null, 5000);
+    if (state.message) {
+      setShowMessage(true);
+      const timer = setTimeout(() => setShowMessage(false), 5000);
       return () => clearTimeout(timer);
+    } else {
+      setShowMessage(false);
     }
-  }, [state?.message]);
+  }, [state.message]);
+
+  const onRemoveUser = (userId, inputName) => {
+    const usersToFilter =
+      inputName === "teachers" ? inputs.teachers : inputs.students;
+
+    const filteredUsers = usersToFilter.filter((user) => user !== userId);
+
+    setInputs({ ...inputs, [inputName]: filteredUsers });
+  };
+
+  const onRemoveDay = (day) => {
+    console.log("DAY: ", day);
+  };
+
+  useEffect(() => {
+    console.log("USANDO EFEITO: ", inputs);
+  }, [inputs?.teachers, inputs?.students]);
 
   return (
     <div className="w-full">
@@ -49,7 +70,7 @@ function ClassForm({
         {classData._id && (
           <input type="hidden" name="_id" value={classData._id} />
         )}
-        {state?.message && (
+        {state?.message && showMessage && (
           <div className="max-w-screen-xl mx-auto w-full">
             <FlashMessage
               message={state?.message}
@@ -135,6 +156,7 @@ function ClassForm({
             defaultSelectedIds={(inputs?.teachers || []).map((t) =>
               typeof t === "string" ? t : t._id
             )}
+            onRemove={onRemoveUser}
           />
         </div>
 
@@ -146,6 +168,7 @@ function ClassForm({
             defaultSelectedIds={(inputs?.students || []).map((s) =>
               typeof s === "string" ? s : s._id
             )}
+            onRemove={onRemoveUser}
           />
         </div>
 
@@ -160,9 +183,7 @@ function ClassForm({
             type="date"
             id="startDate"
             name="startDate"
-            defaultValue={
-              inputs?.startDate || ""
-            }
+            defaultValue={inputs?.startDate || ""}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:border-gray-600"
           />
         </div>
@@ -178,18 +199,15 @@ function ClassForm({
             type="date"
             id="endDate"
             name="endDate"
-            defaultValue={
-              inputs?.endDate || ""
-            }
+            defaultValue={inputs?.endDate || ""}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:border-gray-600"
           />
         </div>
 
         <div className="mb-4">
           <DaysMultiSelect
-            defaultSelectedDays={
-              inputs?.schedule?.days || []
-            }
+            defaultSelectedDays={inputs?.schedule?.days || []}
+            onRemove={onRemoveDay}
           />
         </div>
 

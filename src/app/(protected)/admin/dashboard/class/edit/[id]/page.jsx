@@ -1,6 +1,6 @@
 import React from "react";
 import PageSectionTitle from "@/app/(protected)/components/shared/PageSectionTitle";
-import ClassForm from "@/app/(protected)/admin/dashboard/classes/components/ClassForm";
+import ClassForm from "@/app/(protected)/admin/dashboard/class/components/ClassForm";
 import { getUsersByRole } from "@/app/lib/users/getUsersByRole";
 import { getClassTypes } from "@/app/lib/classes/getClassTypes";
 import { getClassModel } from "@/app/models/Class";

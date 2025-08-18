@@ -26,7 +26,7 @@ function AdminDashboard() {
           description="Gerencie as turmas ativas atualmente, bem como as arquivadas."
           buttonText="Gerenciar"
           buttonColor="green"
-          link="/admin/dashboard/classes"
+          link="/admin/dashboard/class"
         />
 
         <DashboardCard

@@ -8,18 +8,9 @@ import {
   ComboboxButton,
 } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/24/solid";
+import { DAYS } from "@/app/lib/utils/days";
 
-const DAYS = [
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday",
-];
-
-export default function DaysMultiSelect({ defaultSelectedDays = [] }) {
+export default function DaysMultiSelect({ defaultSelectedDays = [], onRemove }) {
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState(
     DAYS.filter((day) => defaultSelectedDays.includes(day))
@@ -52,7 +43,7 @@ export default function DaysMultiSelect({ defaultSelectedDays = [] }) {
                   type="button"
                   className="rounded p-0.5 hover:bg-indigo-200 dark:hover:bg-indigo-800"
                   onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => remove(d)}
+                  onClick={() => onRemove(d)}
                   aria-label={`Remover ${d}`}
                 >
                   <CheckIcon className="h-3 w-3" />
