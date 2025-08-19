@@ -4,6 +4,7 @@ import { useState } from "react";
 import SidebarNavItem from "@/app/(protected)/components/shared/SideBarNavItem";
 import { FaHome } from "react-icons/fa";
 import Link from "next/link";
+import { relatedToTitleUrl } from "@/app/lib/helpers/generalUtils";
 
 function SideBarNav() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -16,14 +17,14 @@ function SideBarNav() {
     >
       <Link href="/admin/dashboard">
         <h2 className="flex text-2xl font-bold mb-6 text-indigo-600 dark:text-indigo-400 gap-2">
-          <FaHome className="text-3xl"/>
+          <FaHome className="text-3xl" />
           Admin
         </h2>
       </Link>
       <nav>
         <ul>
           <SidebarNavItem
-            href="/admin/dashboard/class-types"
+            href={`/admin/dashboard/${relatedToTitleUrl("classTypes")}`}
             iconName="addType"
           >
             Gerenciar Tipos de Turma

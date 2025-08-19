@@ -1,10 +1,10 @@
 import React from "react";
 import PageSectionTitle from "@/app/(protected)/components/shared/PageSectionTitle";
 import FileUploadComponent from "@/app/(protected)/admin/dashboard/files/components/FileUploadForm";
-import { relatedToTitle } from "@/app/lib/helpers/generalUtils";
 
 async function AddFileClass({ params }) {
   const { relatedToType, relatedToId } = await params;
+  console.log("Rel type: ", relatedToType)
 
   return (
     <>

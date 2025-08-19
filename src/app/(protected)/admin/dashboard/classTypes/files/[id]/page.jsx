@@ -5,6 +5,7 @@ import PageSectionTitle from "@/app/(protected)/components/shared/PageSectionTit
 import Link from "next/link";
 import FilesTable from "@/app/(protected)/admin/dashboard/components/FilesTable";
 import { getFileModel } from "@/app/models/FilesSchema";
+import { relatedToTitleUrl } from "@/app/lib/helpers/generalUtils";
 
 async function ClassTypeFilesPage({ params }) {
   const { id: classTypeId } = await params;
@@ -28,7 +29,7 @@ async function ClassTypeFilesPage({ params }) {
       _id: file._id.toString(),
       uploadedBy: file.uploadedBy.toString(),
       modifiedAt: file.modifiedAt.toString(),
-      relatedToId: file.relatedToId.toString()
+      relatedToId: file.relatedToId.toString(),
     }));
 
     return (
@@ -42,7 +43,9 @@ async function ClassTypeFilesPage({ params }) {
           </div>
           <div className="flex justify-center">
             <Link
-              href={`/admin/dashboard/files/ClassTypes/${classType._id}/add`}
+              href={`/admin/dashboard/files/${relatedToTitleUrl(
+                "classTypes"
+              )}/${classType._id}/add`}
             >
               <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 cursor-pointer">
                 Arquivos do Tipo de Classe

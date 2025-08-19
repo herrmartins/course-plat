@@ -1,5 +1,5 @@
 import { getUserModel } from "@/app/models/User";
-import { getFieldItemByItem } from "@/app/lib/helpers/getItemById"
+import { getFieldItemByItem } from "@/app/lib/helpers/getItems"
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { LuFileStack } from "react-icons/lu";
 import Link from "next/link";
@@ -37,9 +37,9 @@ export async function ClassRow({ classData, className }) {
           <Link href={`/admin/dashboard/class/files/${classData._id}`}>
             <LuFileStack className="hover:text-yellow-500 transition cursor-pointer" />
           </Link>
-          {/* <Link href={`/admin/dashboard/files/ClassTypes/${type._id}/add`}>
+          <Link href={`/admin/dashboard/files/class/${classData._id}/add`}>
           <FaFileCirclePlus className="hover:text-blue-500 transition cursor-pointer" />
-        </Link> */}
+        </Link>
         </div>
       </td>
     </tr>

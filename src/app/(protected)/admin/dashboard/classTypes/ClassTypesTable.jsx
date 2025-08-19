@@ -9,13 +9,14 @@ import { FaEdit, FaTrash, FaDollarSign } from "react-icons/fa";
 import { FaFileCirclePlus } from "react-icons/fa6";
 import { IoCalendarOutline } from "react-icons/io5";
 import { LuFileStack } from "react-icons/lu";
+import { relatedToTitleUrl } from "@/app/lib/helpers/generalUtils";
 
 export default function ClassTypesTable({ classTypes }) {
   const [clientClassTypes, setClientClassTypes] = useState(classTypes);
   const router = useRouter();
 
   const onEditClassType = (id) => {
-    router.push(`/admin/dashboard/class-types/edit/${id.toString()}`);
+    router.push(`/admin/dashboard/${relatedToTitleUrl("classTypes")}/edit/${id.toString()}`);
   };
 
   const handleDeleteClassType = async (classTypeId) => {
@@ -89,10 +90,10 @@ export default function ClassTypesTable({ classTypes }) {
                     className="hover:text-red-500 transition cursor-pointer"
                     onClick={() => handleDeleteClassType(type._id)}
                   />
-                  <Link href={`/admin/dashboard/class-types/files/${type._id}`}>
+                  <Link href={`/admin/dashboard/${relatedToTitleUrl("classTypes")}/files/${type._id}`}>
                     <LuFileStack className="hover:text-yellow-500 transition cursor-pointer" />
                   </Link>
-                  <Link href={`/admin/dashboard/files/ClassTypes/${type._id}/add`}>
+                  <Link href={`/admin/dashboard/files/${relatedToTitleUrl("classTypes")}/${type._id}/add`}>
                     <FaFileCirclePlus className="hover:text-blue-500 transition cursor-pointer" />
                   </Link>
                 </div>

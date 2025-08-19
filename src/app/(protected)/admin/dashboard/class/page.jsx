@@ -15,7 +15,7 @@ export default async function ClassesPage() {
           <PageSectionTitle title="Gerenciar Turmas" className="mx-5" />
         </div>
         <div className="flex justify-center">
-          <Link href="/admin/dashboard/classes/add">
+          <Link href="/admin/dashboard/class/add">
             <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 cursor-pointer">
               + Adicionar Nova Turma
             </button>

@@ -8,7 +8,7 @@ import { classSchema } from "@/app/lib/schemas/classSchema";
 import { getUserModel } from "@/app/models/User";
 import { getClassTypeModel } from "@/app/models/ClassType";
 import { DAYS } from "@/app/lib/utils/days";
-import { getItemById } from "../helpers/getItemById";
+import { getItemById } from "../helpers/getItems";
 
 export default async function saveClassAction(currentState, formData) {
   console.log("DADOS: ", ...formData)

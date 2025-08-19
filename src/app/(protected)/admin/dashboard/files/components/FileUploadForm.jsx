@@ -18,7 +18,7 @@ export default function FileUploadComponent({
   relId = null,
   file = null,
 }) {
-
+  console.log("RELATED TO: ", relType)
   const [state, formAction, isPending] = useActionState(
     saveFileAction,
     initialState
@@ -36,6 +36,7 @@ export default function FileUploadComponent({
         setShowMessage(false);
         if (file) {
           const relatedToType = relatedToTitleUrl(file.relatedToType);
+          console.log("Related to type: ", relatedToType);
           redirect(`/admin/dashboard/${relatedToType}/files/${file.relatedToId}`);
         } else {
              initialState.inputs = {};

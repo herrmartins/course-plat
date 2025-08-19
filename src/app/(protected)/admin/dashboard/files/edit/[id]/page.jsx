@@ -1,7 +1,7 @@
 import React from "react";
 import PageSectionTitle from "@/app/(protected)/components/shared/PageSectionTitle";
 import FileUploadComponent from "@/app/(protected)/admin/dashboard/files/components/FileUploadForm";
-import { getItemById } from "@/app/lib/helpers/getItemById";
+import { getItemById } from "@/app/lib/helpers/getItems";
 import { getFileModel } from "@/app/models/FilesSchema";
 
 async function EditFile({ params }) {

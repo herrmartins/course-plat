@@ -13,7 +13,8 @@ function AddFileClass() {
             className="mb-8"
           />
         </div>
-        <FileUploadComponent />
+        {/* <FileUploadComponent /> */}
+        SÓ PÁGINA
       </div>
     </>
   );

@@ -9,7 +9,7 @@ const FileSchema = new mongoose.Schema({
   relatedToId: { type: mongoose.Schema.Types.ObjectId, required: false },
   relatedToType: {
     type: String,
-    enum: ["Class", "ClassTypes"],
+    enum: ["class", "classTypes", "loose"],
     required: false,
   },
 

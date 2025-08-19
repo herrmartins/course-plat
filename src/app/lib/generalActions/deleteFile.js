@@ -4,7 +4,7 @@ import { getFileModel } from "@/app/models/FilesSchema";
 import { deleteById } from "@/app/lib/helpers/deleteById";
 import { revalidatePath } from "next/cache"; // Replace redirect with revalidatePath
 import { deleteFromCloudinary } from "../utils/cloudinary";
-import { getItemById } from "../helpers/getItemById";
+import { getItemById } from "../helpers/getItems";
 
 export async function deleteFile({ _id, redirectTo }) {
   if (!_id) {

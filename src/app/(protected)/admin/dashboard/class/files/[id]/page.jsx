@@ -5,6 +5,7 @@ import Link from "next/link";
 import FilesTable from "@/app/(protected)/admin/dashboard/components/FilesTable";
 import { getFileModel } from "@/app/models/FilesSchema";
 import { getClassModel } from "@/app/models/Class";
+import { relatedToTitle, relatedToTitleUrl } from "@/app/lib/helpers/generalUtils";
 
 async function ClassFilesPage({ params }) {
   const { id: classId } = await params;
@@ -42,10 +43,10 @@ async function ClassFilesPage({ params }) {
           </div>
           <div className="flex justify-center">
             <Link
-              href={`/admin/dashboard/files/Class/${theClass._id}/add`}
+              href={`/admin/dashboard/files/${relatedToTitleUrl("class")}/${theClass._id}/add`}
             >
               <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 cursor-pointer">
-                Arquivos da Turma
+                Adicionar
               </button>
             </Link>
           </div>

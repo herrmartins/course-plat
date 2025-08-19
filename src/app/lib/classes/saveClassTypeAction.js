@@ -1,6 +1,7 @@
 "use server";
 
 import { getClassTypeModel } from "@/app/models/ClassType";
+import { relatedToTitleUrl } from "../helpers/generalUtils";
 
 export default async function saveClassTypeAction(currentState, formData) {
   const id = formData.get("_id");
@@ -46,7 +47,7 @@ export default async function saveClassTypeAction(currentState, formData) {
     
     return {
       success: true,
-      redirectTo: "/admin/dashboard/class-types",
+      redirectTo: `/admin/dashboard/${relatedToTitleUrl("classTypes")}`,
     };
   } catch (e) {
     return {

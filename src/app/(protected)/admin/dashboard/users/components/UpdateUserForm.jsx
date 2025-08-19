@@ -23,7 +23,7 @@ function UpdateUserForm({ user }) {
     if (user && JSON.stringify(user.roles) !== JSON.stringify(selectedRoles)) {
       setSelectedRoles(user.roles);
     }
-    console.log("Selected roles no useEffect 1: ", selectedRoles);
+
   }, [user]);
 
   useEffect(() => {
@@ -34,8 +34,6 @@ function UpdateUserForm({ user }) {
         setSelectedRoles(state?.inputs?.roles);
       }
     }
-
-    console.log("Selected roles no useEffect 2: ", selectedRoles);
 
   }, [state?.inputs]);
 

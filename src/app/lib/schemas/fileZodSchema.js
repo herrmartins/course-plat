@@ -23,12 +23,8 @@ export const fileZodSchema = z.object({
   size: z.number({
     invalid_type_error: "O tamanho do arquivo deve ser numérico",
   }),
-  relatedToId: z
-    .object({ invalid_type_error: "A relação deve ser com um objeto." })
-    .optional(),
-  relatedToType: z.enum(["Class", "ClassTypes"]),
-  uploadedBy: z.object({
-    invalid_type_error: "O usuário que fez o upload deve estar presente...",
-  }),
-  description: z.string({ invalid_type_error: "Título inválido" }),
+  relatedToId: z.string().optional(),
+  relatedToType: z.enum(["class", "classTypes", "loose"]).optional(),
+uploadedBy: z.string(),
+  description: z.string().optional(),
 });

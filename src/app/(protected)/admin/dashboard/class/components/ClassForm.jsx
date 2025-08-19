@@ -55,10 +55,6 @@ function ClassForm({
     console.log("DAY: ", day);
   };
 
-  useEffect(() => {
-    console.log("USANDO EFEITO: ", inputs);
-  }, [inputs?.teachers, inputs?.students]);
-
   return (
     <div className="w-full">
       <form

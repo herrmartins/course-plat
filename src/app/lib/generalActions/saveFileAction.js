@@ -6,7 +6,7 @@ import {
   deleteFromCloudinary,
 } from "@/app/lib/utils/cloudinary";
 import { auth } from "@/app/lib/utils/auth";
-import { getItemById } from "@/app/lib/helpers/getItemById";
+import { getItemById } from "@/app/lib/helpers/getItems";
 import { getClassTypeModel } from "@/app/models/ClassType";
 import { getClassModel } from "@/app/models/Class";
 import z from "zod";
@@ -33,7 +33,7 @@ export async function saveFileAction(currentState, formData) {
     title,
     description,
     relatedToId,
-    relatedToType
+    relatedToType,
   };
 
   if (!title || (!fileId && !file)) {
@@ -101,15 +101,17 @@ export async function saveFileAction(currentState, formData) {
     const validatedFields = fileZodSchema.safeParse(fileDataToSave);
 
     if (!validatedFields.success) {
-        const validationErrors = z.flattenError(validatedFields.error);
-    
-        return {
-          success: false,
-          message: `Erro: ${validationErrors}`,
-          inputs: fileDataToSave,
-        };
-      }
+      const validationErrors = z.flattenError(validatedFields.error);
 
+      return {
+        success: false,
+        message: `Erro: ${validationErrors}`,
+        inputs: fileDataToSave,
+      };
+    }
+
+
+    // return { success: true, message: "Arquivo recebido com sucesso!" };
     try {
       Object.assign(fileToUpdate, fileDataToSave);
       resultFile = await fileToUpdate.save();
@@ -170,10 +172,10 @@ export async function saveFileAction(currentState, formData) {
       if (relatedToType) {
         let model;
         switch (relatedToType) {
-          case "ClassTypes":
+          case relatedToTitleUrl("classTypes"):
             model = await getClassTypeModel();
             break;
-          case "Class":
+          case relatedToTitleUrl("class"):
             model = await getClassModel();
             break;
           case "Lesson":
@@ -206,10 +208,10 @@ export async function saveFileAction(currentState, formData) {
         inputs: rawData,
       };
     }
-    revalidatePath(`/admin/dashboard/${relatedToTitleUrl(relatedToType)}/files`);
-    redirect(
-      `/admin/dashboard/${relatedToTitleUrl(relatedToType)}/files/${relatedToId}`,
-      RedirectType.replace
-    );
+    const redirectUrl = relatedToType
+      ? `/admin/dashboard/${relatedToTitleUrl(relatedToType)}/files/${relatedToId}`
+      : "/admin/dashboard/files";
+    revalidatePath(redirectUrl);
+    redirect(redirectUrl, RedirectType.replace);
   }
 }

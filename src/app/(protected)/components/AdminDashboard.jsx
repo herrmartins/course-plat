@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import DashboardCard from "./shared/DashboardCard";
+import { relatedToTitleUrl } from "@/app/lib/helpers/generalUtils";
 
 function AdminDashboard() {
   return (
@@ -18,7 +17,7 @@ function AdminDashboard() {
           description="Gerencie os tipos de turmas, como 'Starters' etc."
           buttonText="Gerenciar"
           buttonColor="indigo"
-          link="/admin/dashboard/class-types"
+          link={`/admin/dashboard/${relatedToTitleUrl("classTypes")}`}
         />
 
         <DashboardCard

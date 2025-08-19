@@ -24,7 +24,7 @@ export async function deleteClassTypeAction({_id}) {
     return {
       success: true,
       message: "Tipo de aula excluído com sucesso!",
-      redirectTo: "/admin/dashboard/class-types",
+      redirectTo: `/admin/dashboard/${relatedToTitleUrl("classTypes")}`,
     };
   } catch (e) {
     return {

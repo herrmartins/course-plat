@@ -8,8 +8,8 @@ export const relatedToTitle = (name) => {
 
 export const relatedToTitleUrl = (name) => {
   const types = {
-    ClassTypes: "class-types",
-    Class: "class",
+    classTypes: "classTypes",
+    class: "class",
   };
   return types[name] || "loose";
 };
