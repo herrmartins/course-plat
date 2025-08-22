@@ -18,7 +18,7 @@ export default function FileUploadComponent({
   relId = null,
   file = null,
 }) {
-  console.log("RELATED TO: ", relType)
+
   const [state, formAction, isPending] = useActionState(
     saveFileAction,
     initialState

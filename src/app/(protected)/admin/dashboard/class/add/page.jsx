@@ -10,7 +10,7 @@ async function AddClass() {
   const classTypes = await getClassTypes();
 
   return (
-    <div className="flex flex-col w-full">
+    <div className="flex flex-col w-full px-4 sm:px-6 lg:px-8">
       <PageSectionTitle title="Adicionar Turma" className="mb-8" />
       <ClassForm
         classTypes={classTypes}

@@ -2,10 +2,14 @@
 
 import { getClassTypeModel } from "@/app/models/ClassType";
 import { deleteById } from "@/app/lib/helpers/deleteById";
+import { revalidatePath } from "next/cache";
+import { redirect, RedirectType } from "next/navigation";
+import { relatedToTitleUrl } from "../helpers/generalUtils";
 
-export async function deleteClassTypeAction({_id}) {
+export async function deleteClassTypeAction(currentState, formData ) {
+  const id = formData.get("_id");
 
-  if (!_id) {
+  if (!id) {
     return {
       success: false,
       message: "ID inválido.",
@@ -19,13 +23,11 @@ export async function deleteClassTypeAction({_id}) {
     it is not so simple. The thing is that, if I want
     the deletions to follow a pattern, they will be there
     in the helper function */
-    await deleteById(ClassType, _id);
+    await deleteById(ClassType, id);
 
-    return {
-      success: true,
-      message: "Tipo de aula excluído com sucesso!",
-      redirectTo: `/admin/dashboard/${relatedToTitleUrl("classTypes")}`,
-    };
+    revalidatePath(`/admin/dashboard/${relatedToTitleUrl("classTypes")}`);
+    redirect(`/admin/dashboard/${relatedToTitleUrl("classTypes")}`, RedirectType.replace);
+
   } catch (e) {
     return {
       success: false,

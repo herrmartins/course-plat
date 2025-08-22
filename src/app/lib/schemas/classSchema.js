@@ -19,7 +19,18 @@ export const classSchema = z.object({
       days: z
         .array(z.string({ invalid_type_error: "Dias inválidos" }))
         .optional(),
-      time: z.string().regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/, "Formato de horário inválido. Use HH:MM"),
-  }).optional(),
+      time: z
+        .string()
+        .regex(
+          /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/,
+          "Formato de horário inválido. Use HH:MM"
+        ),
+    })
+    .optional(),
+  price: z.number({ invalid_type_error: "Mensalidade inválida" }),
+  inheritFiles: z.boolean().default(false),
+  files: z
+    .array(z.string({ invalid_type_error: "Arquivos inválidos" }))
+    .optional(),
   status: z.string({ invalid_type_error: "Status incorreto" }),
 });

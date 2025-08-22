@@ -87,6 +87,10 @@ const ClassSchema = new mongoose.Schema(
       default: "active",
       index: true,
     },
+    price: {
+      type: Number,
+      required: true
+    }
   },
   {
     timestamps: { createdAt: "createdAt", updatedAt: "modifiedAt" },

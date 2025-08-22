@@ -4,8 +4,9 @@ import React, { useEffect, useState } from "react";
 import { useActionState } from "react";
 import saveClassAction from "@/app/lib/classes/saveClassAction";
 import FlashMessage from "@/app/(protected)/components/shared/FlashMessage";
-import UsersMultiSelect from "./StudentsMultiSelect";
+import UsersMultiSelect from "./UsersMultiSelect";
 import DaysMultiSelect from "./DaysMultiSelect";
+import FormCheckbox from "./FormCheckbox";
 
 function ClassForm({
   classData = {},
@@ -25,12 +26,26 @@ function ClassForm({
   const initialData = classData
     ? {
         ...classData,
+        classType:
+          typeof classData.classType === "object"
+            ? String(classData.classType?._id ?? "")
+            : String(classData.classType ?? ""),
         startDate: classData.startDate?.split("T")[0],
         endDate: classData.endDate?.split("T")[0],
       }
     : {};
 
   const [inputs, setInputs] = useState(state?.inputs || initialData || []);
+
+  useEffect(() => {
+    if (state?.inputs) {
+      setInputs((prev) => ({
+        ...prev,
+        ...state.inputs,
+        classType: String(state.inputs.classType ?? ""),
+      }));
+    }
+  }, [state?.inputs]);
 
   useEffect(() => {
     if (state.message) {
@@ -52,11 +67,29 @@ function ClassForm({
   };
 
   const onRemoveDay = (day) => {
-    console.log("DAY: ", day);
+    const daysToFilter = inputs?.schedule?.days;
+    const filteredDays = daysToFilter.filter((d) => d !== day);
+
+    setInputs({
+      ...inputs,
+      schedule: {
+        ...inputs.schedule,
+        days: filteredDays,
+      },
+    });
+  };
+
+  const onClassTypeChange = (e) => {
+    const value = String(e.target.value);
+    const ct = classTypes.find(x => String(x._id) === e.target.value);
+    setInputs((prev) => {
+      const next = { ...prev, classType: value, price: ct?.price ?? "" };
+      return next;
+    });
   };
 
   return (
-    <div className="w-full">
+    <div className="mb-20">
       <form
         action={action}
         className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md max-w-lg mx-auto"
@@ -87,23 +120,21 @@ function ClassForm({
               id="classType"
               name="classType"
               required
-              defaultValue={inputs?.classType || ""}
-              className="shadow appearance-none border rounded w-full py-2 pl-3 pr-10
-                 text-gray-700 dark:text-gray-200 leading-tight
-                 focus:outline-none focus:shadow-outline
-                 dark:bg-gray-700 dark:border-gray-600
-                 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
-                 cursor-pointer"
+              value={inputs?.classType || ""}
+              onChange={onClassTypeChange}
+              className="shadow appearance-none border rounded w-full py-2 pl-3 pr-10 ..."
             >
               <option value="" disabled>
                 Selecione o tipo de classe
               </option>
-
-              {classTypes.map((ct) => (
-                <option key={ct._id} value={ct._id}>
-                  {ct.name || ct.title || ct.label || ct._id}
-                </option>
-              ))}
+              {classTypes.map((ct) => {
+                const id = typeof ct._id === "string" ? ct._id : String(ct._id);
+                return (
+                  <option key={id} value={id}>
+                    {ct.name || ct.title || ct.label || id}
+                  </option>
+                );
+              })}
             </select>
 
             <svg
@@ -222,6 +253,40 @@ function ClassForm({
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:border-gray-600"
             placeholder="Ex: 14:00"
           />
+        </div>
+
+        <div className="mb-4">
+          <label
+            htmlFor="time"
+            className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2"
+          >
+            Mensalidade:
+          </label>
+          <input
+            type="text"
+            id="price"
+            name="price"
+            defaultValue={inputs?.price || ""}
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:border-gray-600"
+            placeholder="Ex: 50,00"
+          />
+        </div>
+
+        <div className="mb-4">
+          {!classData._id && (
+            <FormCheckbox
+              name="inheritFiles"
+              label="Herdar arquivos do tipo de turma"
+              description="Ao se criar a classe, herdam-se os arquivos daquele tipo de classe."
+              checked={!!inputs?.inheritFiles}
+              onChange={(e) =>
+                setInputs((prev) => ({
+                  ...prev,
+                  inheritFiles: e.target.checked,
+                }))
+              }
+            />
+          )}
         </div>
 
         <input type="hidden" name="status" value="active" />

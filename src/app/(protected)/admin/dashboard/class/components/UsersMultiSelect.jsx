@@ -75,7 +75,7 @@ export default function UsersMultiSelect({
               aria-label={label}
               displayValue={(user) => user?.fullName}
               onChange={(event) => setQuery(event.target.value)}
-              className="w-full border-none py-2 pl-3 pr-8 text-gray-900 dark:text-gray-200 bg-transparent focus:outline-none"
+              className="max-w-lg border-none py-2 pl-3 pr-8 text-gray-900 dark:text-gray-200 bg-transparent focus:outline-none"
             />
             <ComboboxButton className="absolute inset-y-0 right-0 flex items-center pr-2">
               <ChevronUpDownIcon className="h-5 w-5 text-gray-400" />
@@ -83,7 +83,7 @@ export default function UsersMultiSelect({
           </div>
           <ComboboxOptions
             anchor={{ to: "bottom", gap: "0.5rem" }}
-            className="border mt-1 max-h-60 w-100 overflow-auto rounded
+            className="border mt-1 max-h-60 overflow-auto rounded
                        border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 shadow-lg"
           >
             {filtered.map((u) => (

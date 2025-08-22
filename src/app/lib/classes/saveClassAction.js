@@ -11,9 +11,11 @@ import { DAYS } from "@/app/lib/utils/days";
 import { getItemById } from "../helpers/getItems";
 
 export default async function saveClassAction(currentState, formData) {
-  console.log("DADOS: ", ...formData)
+  console.log("DADOS: ", ...formData);
   const days = formData.getAll("days") || [];
   const time = formData.get("time") || undefined;
+
+  const inheritFiles = formData.has("inheritFiles");
 
   const data = {
     _id: formData.get("_id") || undefined,
@@ -23,14 +25,22 @@ export default async function saveClassAction(currentState, formData) {
     students: formData.getAll("students"),
     startDate: formData.get("startDate") || undefined,
     endDate: formData.get("endDate") || undefined,
+    inheritFiles,
     schedule: {
       days,
       time,
     },
     status: formData.get("status") || undefined,
+    price: formData.get("price") || 0,
   };
 
   const validatedFields = classSchema.safeParse(data);
+
+  const ClassTypeModel = await getClassTypeModel();
+  const classTypeExists = await getItemById(
+    ClassTypeModel,
+    validatedFields.data.classType
+  );
 
   if (!validatedFields.success) {
     const validationErrors = z.flattenError(validatedFields.error);
@@ -41,7 +51,7 @@ export default async function saveClassAction(currentState, formData) {
       inputs: data,
     };
   } else {
-    const { teachers, students, classType, startDate, endDate, schedule } =
+    const { teachers, students, startDate, endDate, schedule } =
       validatedFields.data;
 
     try {
@@ -72,9 +82,8 @@ export default async function saveClassAction(currentState, formData) {
         message: `Erro ao verificar professores/alunos. ${error}`,
       };
     }
-    const ClassTypeModel = await getClassTypeModel();
+
     try {
-      const classTypeExists = await getItemById(ClassTypeModel, classType);
       if (!classTypeExists) {
         return {
           success: false,
@@ -96,7 +105,7 @@ export default async function saveClassAction(currentState, formData) {
         inputs: validatedFields.data,
       };
     }
-    const {days} = schedule;
+    const { days } = schedule;
 
     if (!days.every((day) => DAYS.includes(day))) {
       return {
@@ -105,7 +114,6 @@ export default async function saveClassAction(currentState, formData) {
         inputs: validatedFields.data,
       };
     }
-
   }
 
   const isBlank = (v) =>
@@ -140,6 +148,11 @@ export default async function saveClassAction(currentState, formData) {
       inputs: data,
     };
   }
+  console.log("DADOS", ({
+    ...data,
+    days,
+    time,
+  }));
   // return {
   //   success: false,
   //   message: "ERRO PARA TESTES",
@@ -153,10 +166,22 @@ export default async function saveClassAction(currentState, formData) {
     const Class = await getClassModel();
     const id = formData.get("_id");
 
-    if (id) {
-      await Class.updateOne({ _id: id }, data, { runValidators: true });
-    } else {
+    if (!id) {
+      if (inheritFiles && classTypeExists?.files?.length) {
+        const isPopulated =
+          typeof classTypeExists.populated === "function"
+            ? classTypeExists.populated("files")
+            : false;
+
+        const filesToAttach = isPopulated
+          ? classTypeExists.files.map((f) => f._id)
+          : classTypeExists.files;
+
+        data.files = [...filesToAttach];
+      }
       await Class.create(data);
+    } else {
+      await Class.findByIdAndUpdate(id, data, { new: true });
     }
   } catch (err) {
     return {

@@ -1,10 +1,8 @@
 "use client";
 
 import { deleteClassTypeAction } from "@/app/lib/classes/deleteClassType";
-import { useRouter } from "next/navigation";
-import React from "react";
+import { useActionState } from "react";
 import Link from "next/link";
-import { useState } from "react";
 import { FaEdit, FaTrash, FaDollarSign } from "react-icons/fa";
 import { FaFileCirclePlus } from "react-icons/fa6";
 import { IoCalendarOutline } from "react-icons/io5";
@@ -12,33 +10,27 @@ import { LuFileStack } from "react-icons/lu";
 import { relatedToTitleUrl } from "@/app/lib/helpers/generalUtils";
 
 export default function ClassTypesTable({ classTypes }) {
-  const [clientClassTypes, setClientClassTypes] = useState(classTypes);
-  const router = useRouter();
-
-  const onEditClassType = (id) => {
-    router.push(`/admin/dashboard/${relatedToTitleUrl("classTypes")}/edit/${id.toString()}`);
-  };
-
-  const handleDeleteClassType = async (classTypeId) => {
-    try {
-      await deleteClassTypeAction({ _id: classTypeId });
-      setClientClassTypes((prev) =>
-        prev.filter((ct) => ct._id !== classTypeId)
-      );
-    } catch (err) {
-      console.error("Erro deletando o tipo de turma", err);
-    }
-  };
-
+  const initialState = { success: false, message: null };
+  const [state, action, isPending] = useActionState(
+    deleteClassTypeAction,
+    initialState
+  );
   return (
     <div className="flex justify-center px-4 mt-3 overflow-x-auto">
-      <table className="table-auto text-sm border border-neutral-200 dark:border-neutral-700 rounded-lg overflow-hidden shadow-sm">
+      <div>{state?.message && <p>${state?.message}</p>}</div>
+      <table
+        className="table-auto text-sm border border-neutral-200 dark:border-neutral-700 
+                    rounded-lg overflow-hidden shadow-sm"
+      >
         <thead className="bg-neutral-100 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200 uppercase text-xs">
           <tr>
             <th className="px-4 py-2 border-b border-neutral-200 dark:border-neutral-700 text-left">
               Tipo de Turma
             </th>
-            <th className="px-4 py-2 border-b border-neutral-200 dark:border-neutral-700 hidden md:table-cell">
+            <th
+              className="px-4 py-2 border-b border-neutral-200 dark:border-ne
+                    onClick={() => onEditClassType(type._id)}utral-700 hidden md:table-cell"
+            >
               Faixa Etária
             </th>
             <th className="px-4 py-2 border-b border-neutral-200 dark:border-neutral-700 hidden md:table-cell">
@@ -53,7 +45,7 @@ export default function ClassTypesTable({ classTypes }) {
           </tr>
         </thead>
         <tbody>
-          {clientClassTypes.map((type, index) => (
+          {classTypes.map((type, index) => (
             <tr
               key={type._id}
               className={`transition ${
@@ -82,18 +74,37 @@ export default function ClassTypesTable({ classTypes }) {
               </td>
               <td className="px-4 py-2 border-b border-neutral-200 dark:border-neutral-700">
                 <div className="flex justify-center gap-3 text-xl text-neutral-600 dark:text-neutral-300">
-                  <FaEdit
-                    className="hover:text-yellow-500 transition cursor-pointer"
-                    onClick={() => onEditClassType(type._id)}
-                  />
-                  <FaTrash
-                    className="hover:text-red-500 transition cursor-pointer"
-                    onClick={() => handleDeleteClassType(type._id)}
-                  />
-                  <Link href={`/admin/dashboard/${relatedToTitleUrl("classTypes")}/files/${type._id}`}>
+                  <Link
+                    href={`/admin/dashboard/${relatedToTitleUrl(
+                      "classTypes"
+                    )}/edit/${type._id.toString()}`}
+                  >
+                    <FaEdit className="hover:text-yellow-500 transition cursor-pointer" />
+                  </Link>
+                  {/* TODO: alterar o delete, esse componente será do servidor; tirar router.push */}
+                  <form action={action}>
+                    <input
+                      type="hidden"
+                      name="_id"
+                      value={type._id || "nada"}
+                    />
+                    <button type="submit">
+                      <FaTrash className="hover:text-red-500 transition" />
+                    </button>
+                  </form>
+
+                  <Link
+                    href={`/admin/dashboard/${relatedToTitleUrl(
+                      "classTypes"
+                    )}/files/${type._id}`}
+                  >
                     <LuFileStack className="hover:text-yellow-500 transition cursor-pointer" />
                   </Link>
-                  <Link href={`/admin/dashboard/files/${relatedToTitleUrl("classTypes")}/${type._id}/add`}>
+                  <Link
+                    href={`/admin/dashboard/files/${relatedToTitleUrl(
+                      "classTypes"
+                    )}/${type._id}/add`}
+                  >
                     <FaFileCirclePlus className="hover:text-blue-500 transition cursor-pointer" />
                   </Link>
                 </div>
