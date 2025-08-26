@@ -36,14 +36,14 @@ const UserSchema = new mongoose.Schema({
     required: true,
     default: ["student"],
   },
-  parentAccounts: [
+  guardiansAccounts: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       default: [],
     },
   ],
-  childAccounts: [
+  wardAccounts: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -60,9 +60,9 @@ UserSchema.pre('save', function(next) {
 
 const getUserModel = async () => {
   await connectDB();
-  if (process.env.NODE_ENV === "development") {
+  /*if (process.env.NODE_ENV === "development") {
     delete mongoose.connection.models["User"];
-  }
+  }*/
   return mongoose.models.User || mongoose.model("User", UserSchema);
 };
 

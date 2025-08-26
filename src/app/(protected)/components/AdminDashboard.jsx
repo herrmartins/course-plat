@@ -8,7 +8,7 @@ function AdminDashboard() {
         Dashboard Administrativo
       </h1>
       <p className="text-xl text-gray-600 dark:text-gray-400 mb-8">
-        Gerencie os tipos de classes, como "Starters" etc.
+        Gerencie os gêneros de classes, classes, usuários e seus papéis.
       </p>
 
       <div className="flex flex-wrap justify-center gap-8 max-w-screen-xl mx-auto">

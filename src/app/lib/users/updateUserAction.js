@@ -3,6 +3,7 @@
 import { getUserModel } from "@/app/models/User";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { isBlank } from "@/app/lib/utils/formUtils";
 
 export default async function updateUserData(currentState, formData) {
   const userId = formData.get("_id");
@@ -20,10 +21,6 @@ export default async function updateUserData(currentState, formData) {
     roles: roles,
     dateOfBirth: dateOfBirth,
   };
-
-  function isBlank(value) {
-    return value === null || value.trim() === "";
-  }
 
   if (isBlank(fullName) || isBlank(username) || isBlank(email)) {
     return {
@@ -45,8 +42,7 @@ export default async function updateUserData(currentState, formData) {
           username,
           email,
           dateOfBirth,
-          roles,
-          isLoginEnabledByParent: true,
+          roles
         },
         { new: true }
       );

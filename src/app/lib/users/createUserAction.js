@@ -2,14 +2,15 @@
 
 import { getUserModel } from "@/app/models/User";
 import bcrypt from "bcryptjs";
+import { isBlank } from "@/app/lib/utils/formUtils";
 
 export default async function saveUserData(currentState, formData) {
-  const fullName = formData.get("fullName");
-  const username = formData.get("username");
-  const email = formData.get("email");
-  const password = formData.get("password");
-  const confirmPassword = formData.get("confirmPassword");
-  const dateOfBirth = formData.get("dateOfBirth");
+  const fullName = formData.get("fullName") || "";
+  const username = formData.get("username") || "";
+  const email = formData.get("email") || "";
+  const password = formData.get("password") || "";
+  const confirmPassword = formData.get("confirmPassword") || "";
+  const dateOfBirth = formData.get("dateOfBirth") || "";
 
   const rawData = {
     fullName: fullName,
@@ -19,10 +20,6 @@ export default async function saveUserData(currentState, formData) {
   };
 
   const passwordHash = await bcrypt.hash(password, 10);
-
-  function isBlank(value) {
-    return value === null || value.trim() === "";
-  }
 
   if (
     isBlank(fullName) ||
@@ -56,12 +53,21 @@ export default async function saveUserData(currentState, formData) {
       passwordHash,
       dateOfBirth,
       roles: ["parent"],
-      isLoginEnabledByParent: true,
     });
+
+    /* if (true) {
+      console.log("(DEBUG) NOVO USÁRIO: ", newUser)
+      await newUser.deleteOne();
+      return {
+        success: false,
+        message: `Erro ao vincular responsável e aluno, cancelando operação`,
+        inputs: rawData,
+      };
+    } */
 
     return {
       success: true,
-      message: "Usuário criado com sucesso..."
+      message: "Usuário criado com sucesso...",
     };
   } catch (err) {
     return {

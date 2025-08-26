@@ -1,6 +1,8 @@
 "use client";
-import { useState, useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import saveUserData from "@/app/lib/users/createUserAction";
+import { useRouter } from "next/navigation";
+import { FaCheckCircle } from "react-icons/fa";
 
 const initialState = {
   success: false,
@@ -9,12 +11,24 @@ const initialState = {
 
 function RegisterForm() {
   const [state, action, isPending] = useActionState(saveUserData, initialState);
-  /* const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState(""); */
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const router = useRouter();
+
+  useEffect(() => {
+    if (state?.success) {
+      setTimeout(() => {
+        router.replace("/auth/login");
+      }, 3000);
+    }
+  }, [state.success]);
 
   return (
     <div className="mt-3 bg-gray-200 dark:bg-gray-800 p-3 rounded-2xl md:w-150">
-      <p className={`${state.success ? 'text-green-500' : 'text-red-600'} p-3`}>{state.message}</p>
+      <p className={`${state.success ? "text-green-500" : "text-red-600"} p-3`}>
+        {state.message} {state.success && <span> Redirecionando...</span>}
+      </p>
       <form action={action}>
         <div className="mb-4">
           <label
@@ -63,7 +77,7 @@ function RegisterForm() {
             type="email"
             id="email"
             name="email"
-            required
+            requiredpassword
             className="w-full px-3 py-2 rounded-md border border-neutral-300 dark:border-neutral-600
                        bg-neutral-50 dark:bg-neutral-700 text-neutral-800 dark:text-white
                        focus:outline-none focus:ring-2 focus:ring-sky-500"
@@ -84,8 +98,10 @@ function RegisterForm() {
             name="password"
             required
             className="w-full px-3 py-2 rounded-md border border-neutral-300 dark:border-neutral-600
-                       bg-neutral-50 dark:bg-neutral-700 text-neutral-800 dark:text-white
-                       focus:outline-none focus:ring-2 focus:ring-sky-500"
+             bg-neutral-50 dark:bg-neutral-700 text-neutral-800 dark:text-white
+             focus:outline-none focus:ring-2 focus:ring-sky-500"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
         </div>
         <div className="mb-4">
@@ -103,7 +119,25 @@ function RegisterForm() {
             className="w-full px-3 py-2 rounded-md border border-neutral-300 dark:border-neutral-600
                bg-neutral-50 dark:bg-neutral-700 text-neutral-800 dark:text-white
                focus:outline-none focus:ring-2 focus:ring-sky-500"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
           />
+          {!!password && (
+            <p
+              className={`${
+                password === confirmPassword ? "text-green-500" : "text-red-600"
+              } p-3`}
+            >
+              {password === confirmPassword && (
+                <span>
+                  As senhas conferem. <FaCheckCircle />
+                </span>
+              )}
+              {password !== confirmPassword && (
+                <span>As senhas não conferem.</span>
+              )}
+            </p>
+          )}
         </div>
         <div className="mb-4">
           <label

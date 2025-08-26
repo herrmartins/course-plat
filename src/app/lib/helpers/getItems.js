@@ -5,7 +5,7 @@ export async function getItemById(Model, id) {
   return await Model.findById(id);
 }
 
-function convertClassTypeToPlain(item) {
+export function convertClassTypeToPlain(item) {
   if (!item) return item;
   if (Array.isArray(item)) return item.map(convertClassTypeToPlain);
 

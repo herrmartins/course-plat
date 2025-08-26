@@ -1,15 +1,6 @@
 import mongoose from "mongoose";
 import connectDB from "@/app/config/mongodb";
-
-const DAYS = [
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday",
-];
+import {DAYS} from "@/app/lib/utils/days";
 
 const ScheduleSchema = new mongoose.Schema(
   {

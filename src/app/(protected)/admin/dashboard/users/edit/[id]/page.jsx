@@ -2,12 +2,17 @@ import { getUserModel } from "@/app/models/User";
 import UpdateUserForm from "@/app/(protected)/admin/dashboard/users/components/UpdateUserForm";
 import PageSectionTitle from "@/app/(protected)/components/shared/PageSectionTitle";
 import SimplePageInnerTitle from "@/app/(protected)/components/shared/SimplePageInnerTitle";
+import { toPlain } from "@/app/lib/helpers/userSerializer";
 
 export default async function UpdateUserPage({ params }) {
   const {id} = await params;
 
   const User = await getUserModel();
-  const user = await User.findById(id).lean();
+  const userDoc = await User.findById(id)
+  .select("-passwordHash -createdAt -modifiedAt -__v")
+  .lean();
+
+  const user = toPlain(userDoc);
 
   user._id = user._id.toString();
   return (

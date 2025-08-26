@@ -2,8 +2,6 @@
 
 import { isBlank } from "./utils/formUtils";
 import { signIn } from "./utils/auth";
-import { redirect } from "next/navigation";
-import { auth } from "@/auth";
 
 export default async function userLogin(currentState, formData) {
   const username = formData.get("username");
@@ -25,7 +23,7 @@ export default async function userLogin(currentState, formData) {
     await signIn("credentials", {
       username,
       password,
-      redirectTo: "/auth/dispatcher",
+      redirectTo: "/dispatcher",
     });
   } catch (error) {
     /* Totalmente contraintuitivo, mas é como o server action do Next funciona
