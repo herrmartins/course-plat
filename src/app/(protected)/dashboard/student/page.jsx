@@ -1,7 +1,8 @@
 import React from "react";
 import { auth } from "@/auth";
-import StudentDashboard from "./Dashboard";
+import StudentDashboard from "@/app/(protected)/dashboard/student/Dashboard"
 import { getUserModel } from "@/app/models/User";
+import {redirect} from "next/navigation";
 
 async function StudentDashboardPage() {
   const session = await auth();
@@ -11,7 +12,6 @@ async function StudentDashboardPage() {
 
   return (
     <>
-    <p>{JSON.stringify(session)}</p>
       <StudentDashboard />
     </>
   );

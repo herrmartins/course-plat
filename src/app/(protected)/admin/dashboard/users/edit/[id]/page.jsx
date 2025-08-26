@@ -2,7 +2,7 @@ import { getUserModel } from "@/app/models/User";
 import UpdateUserForm from "@/app/(protected)/admin/dashboard/users/components/UpdateUserForm";
 import PageSectionTitle from "@/app/(protected)/components/shared/PageSectionTitle";
 import SimplePageInnerTitle from "@/app/(protected)/components/shared/SimplePageInnerTitle";
-import { toPlain } from "@/app/lib/helpers/userSerializer";
+import { toPlain } from "@/app/lib/helpers/toPlain";
 
 export default async function UpdateUserPage({ params }) {
   const {id} = await params;

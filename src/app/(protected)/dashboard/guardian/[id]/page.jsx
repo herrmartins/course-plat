@@ -2,7 +2,7 @@ import { getClassModel } from "@/app/models/Class";
 import { getUserModel } from "@/app/models/User";
 import SimplePageInnerTitle from "@/app/(protected)/components/shared/SimplePageInnerTitle";
 import { ClassCardComponent } from "@/app/(protected)/components/shared/ClassCard";
-import { classToPlain } from "@/app/lib/helpers/classSerializer";
+import {toPlain} from "@/app/lib/helpers/toPlain";
 
 async function GuardianDashboardPage({params}) {
     const {id} = await params;
@@ -14,7 +14,7 @@ async function GuardianDashboardPage({params}) {
         .populate([{ path: "teachers", select: "fullName email" }, { path: "students", select: "fullName" }])
         .select("classTitle classType teachers startDate endDate schedule status price")
         .lean();
-    const classes = classToPlain(classesRaw);
+    const classes = toPlain(classesRaw);
     console.log("Student classes", classes);
 
     return (<>

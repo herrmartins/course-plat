@@ -1,7 +1,8 @@
 "use client";
 
+import {ClientDateComponent} from "@/app/(protected)/components/shared/ClientDateComponent";
+
 export function ClassCardComponent({ classes }) {
-  // Accepts an array of classes or a single class object
   const list = Array.isArray(classes) ? classes : classes ? [classes] : [];
 
   if (!list.length) {
@@ -12,23 +13,8 @@ export function ClassCardComponent({ classes }) {
     );
   }
 
-  const formatDate = (d) => {
-    if (!d) return "—";
-    try {
-      const date = typeof d === "string" || typeof d === "number" ? new Date(d) : d;
-      return date.toLocaleDateString(undefined, {
-        year: "numeric",
-        month: "short",
-        day: "2-digit",
-      });
-    } catch {
-      return "—";
-    }
-  };
-
   const formatDays = (days) => {
     if (!Array.isArray(days) || !days.length) return "—";
-    // Translate or abbreviate days if needed later
     return days.join(", ");
   };
 
@@ -75,11 +61,11 @@ export function ClassCardComponent({ classes }) {
             <div className="mt-4 space-y-2 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-neutral-500 dark:text-neutral-400">Início</span>
-                <span className="text-neutral-800 dark:text-neutral-200">{formatDate(cls?.startDate)}</span>
+                <span className="text-neutral-800 dark:text-neutral-200"><ClientDateComponent date={cls?.startDate}/></span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-neutral-500 dark:text-neutral-400">Término</span>
-                <span className="text-neutral-800 dark:text-neutral-200">{formatDate(cls?.endDate)}</span>
+                <span className="text-neutral-800 dark:text-neutral-200"><ClientDateComponent date={cls?.endDate}/></span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-neutral-500 dark:text-neutral-400">Horário</span>
@@ -95,7 +81,7 @@ export function ClassCardComponent({ classes }) {
               </div>
               {price !== null && (
                 <div className="flex items-center justify-between">
-                  <span className="text-neutral-500 dark:text-neutral-400">Preço</span>
+                  <span className="text-neutral-500 dark:text-neutral-400">Mensalidade</span>
                   <span className="text-neutral-800 dark:text-neutral-200">R$ {price.toFixed(2)}</span>
                 </div>
               )}
