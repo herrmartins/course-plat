@@ -6,7 +6,7 @@ import PageTitle from "@/app/(protected)/components/shared/PageTitle";
 import MainSection from "@/app/(protected)/components/shared/Main";
 import {getClassModel} from "@/app/models/Class";
 import {toPlain} from "@/app/lib/helpers/toPlain";
-import {ClassCardComponent} from "@/app/(protected)/components/shared/ClassCard";
+import {ClassCardComponent} from "@/app/(protected)/components/shared/ClassCardsComponent";
 
 async function TeacherDashboardPage() {
     const session = await auth();
@@ -21,7 +21,7 @@ async function TeacherDashboardPage() {
     return (
         <MainSection>
             <PageTitle title="Painel do Professor" subTitle="Administre suas turmas, atribua tarefas, notas etc."/>
-            <ClassCardComponent classes={plainClassObjects}/>
+            <ClassCardComponent classes={plainClassObjects} hrefBase="/dashboard/teacher/class"/>
         </MainSection>
     );
 }

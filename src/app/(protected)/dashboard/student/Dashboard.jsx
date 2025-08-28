@@ -1,13 +1,16 @@
+"use client"
 import React from "react";
+import {ClassCard} from "@/app/(protected)/components/shared/ClassCard";
+import {ClassCardComponent} from "@/app/(protected)/components/shared/ClassCardsComponent";
 
-async function StudentDashboard() {
+function StudentDashboard({classes = []}) {
 
   return (
     <>
-      <div className="flex justify-center mt-3">
-        <h1 className="text-4xl">Dashboard</h1>
-      </div>
       <div>
+          {!!classes && classes.length > 0 && (
+              <ClassCardComponent classes={classes} hrefBase="/dashboard/student/class/" />
+          )}
       </div>
     </>
   );

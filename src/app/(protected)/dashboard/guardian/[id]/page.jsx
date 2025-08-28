@@ -1,7 +1,7 @@
 import { getClassModel } from "@/app/models/Class";
 import { getUserModel } from "@/app/models/User";
 import SimplePageInnerTitle from "@/app/(protected)/components/shared/SimplePageInnerTitle";
-import { ClassCardComponent } from "@/app/(protected)/components/shared/ClassCard";
+import { ClassCardComponent } from "@/app/(protected)/components/shared/ClassCardsComponent";
 import {toPlain} from "@/app/lib/helpers/toPlain";
 
 async function GuardianDashboardPage({params}) {
