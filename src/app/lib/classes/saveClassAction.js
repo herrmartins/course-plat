@@ -1,197 +1,192 @@
 "use server";
 
-import { getClassModel } from "@/app/models/Class";
-import { revalidatePath } from "next/cache";
-import { redirect, RedirectType } from "next/navigation";
+import {getClassModel} from "@/app/models/Class";
+import {revalidatePath} from "next/cache";
+import {redirect, RedirectType} from "next/navigation";
 import z from "zod";
-import { classSchema } from "@/app/lib/schemas/classSchema";
-import { getUserModel } from "@/app/models/User";
-import { getClassTypeModel } from "@/app/models/ClassType";
-import { DAYS } from "@/app/lib/utils/days";
-import { getItemById } from "../helpers/getItems";
+import {classSchema} from "@/app/lib/schemas/classSchema";
+import {getUserModel} from "@/app/models/User";
+import {getClassTypeModel} from "@/app/models/ClassType";
+import {DAYS} from "@/app/lib/utils/days";
+import {getItemById} from "../helpers/getItems";
 
 export default async function saveClassAction(currentState, formData) {
-  console.log("DADOS: ", ...formData);
-  const days = formData.getAll("days") || [];
-  const time = formData.get("time") || undefined;
+    const days = formData.getAll("days") || {};
+    const time = formData.get("time") || undefined;
 
-  const inheritFiles = formData.has("inheritFiles");
+    const inheritFiles = formData.has("inheritFiles");
 
-  const data = {
-    _id: formData.get("_id") || undefined,
-    classTitle: formData.get("classTitle") || undefined,
-    classType: formData.get("classType") || undefined,
-    teachers: formData.getAll("teachers"),
-    students: formData.getAll("students"),
-    startDate: formData.get("startDate") || undefined,
-    endDate: formData.get("endDate") || undefined,
-    inheritFiles,
-    schedule: {
-      days,
-      time,
-    },
-    status: formData.get("status") || undefined,
-    price: formData.get("price") || 0,
-  };
-
-  const validatedFields = classSchema.safeParse(data);
-
-  const ClassTypeModel = await getClassTypeModel();
-  const classTypeExists = await getItemById(
-    ClassTypeModel,
-    validatedFields.data.classType
-  );
-
-  if (!validatedFields.success) {
-    const validationErrors = z.flattenError(validatedFields.error);
-
-    return {
-      success: false,
-      message: `Erro: ${JSON.stringify(validationErrors)}`,
-      inputs: data,
+    const data = {
+        _id: formData.get("_id") || undefined,
+        classTitle: formData.get("classTitle") || undefined,
+        classType: formData.get("classType") || undefined,
+        teachers: formData.getAll("teachers"),
+        students: formData.getAll("students"),
+        startDate: formData.get("startDate") || undefined,
+        endDate: formData.get("endDate") || undefined,
+        inheritFiles,
+        schedule: {
+            days,
+            time,
+        },
+        status: formData.get("status") || undefined,
+        price: Number(formData.get("price")) || 0,
+        link: formData.get("link") || "",
     };
-  } else {
-    const { teachers, students, startDate, endDate, schedule } =
-      validatedFields.data;
+
+    const validatedFields = classSchema.safeParse(data);
+
+
+    if (!validatedFields.success) {
+        const validationErrors = z.flattenError(validatedFields.error);
+
+        return {
+            success: false,
+            message: `Erro: ${JSON.stringify(validationErrors)}`,
+            inputs: data,
+        };
+    }
+    const ClassTypeModel = await getClassTypeModel();
+    const classTypeExists = await getItemById(
+        ClassTypeModel,
+        validatedFields.data.classType
+    );
+    const {teachers, students, startDate, endDate, schedule} =
+        validatedFields.data;
+    console.log("DADOS: ", schedule)
 
     try {
-      const User = await getUserModel();
-      const [teachersExist, studentsExist] = await Promise.all([
-        User.find({ _id: { $in: teachers } }),
-        User.find({ _id: { $in: students } }),
-      ]);
+        const User = await getUserModel();
+        const [teachersExist, studentsExist] = await Promise.all([
+            User.find({_id: {$in: teachers}}),
+            User.find({_id: {$in: students}}),
+        ]);
 
-      if (teachers.length !== teachersExist.length) {
-        return {
-          success: false,
-          message: "Erro: um ou mais professores não foram encontrados.",
-          inputs: validatedFields.data,
-        };
-      }
+        if (teachers.length !== teachersExist.length) {
+            return {
+                success: false,
+                message: "Erro: um ou mais professores não foram encontrados.",
+                inputs: validatedFields.data,
+            };
+        }
 
-      if (students.length !== studentsExist.length) {
-        return {
-          success: false,
-          message: "Erro: um ou mais alunos não foram encontrados.",
-          inputs: validatedFields.data,
-        };
-      }
+        if (students.length !== studentsExist.length) {
+            return {
+                success: false,
+                message: "Erro: um ou mais alunos não foram encontrados.",
+                inputs: validatedFields.data,
+            };
+        }
     } catch (error) {
-      return {
-        success: false,
-        message: `Erro ao verificar professores/alunos. ${error}`,
-      };
+        return {
+            success: false,
+            message: `Erro ao verificar professores/alunos. ${error}`,
+        };
     }
 
     try {
-      if (!classTypeExists) {
-        return {
-          success: false,
-          message: "O tipo de turma selecionado não existe.",
-          inputs: validatedFields.data,
-        };
-      }
+        if (!classTypeExists) {
+            return {
+                success: false,
+                message: "O tipo de turma selecionado não existe.",
+                inputs: validatedFields.data,
+            };
+        }
     } catch (error) {
-      return {
-        success: false,
-        message: "Erro ao verificar o tipo de turma.",
-      };
+        return {
+            success: false,
+            message: "Erro ao verificar o tipo de turma.",
+        };
     }
 
     if (endDate && startDate && new Date(endDate) < new Date(startDate)) {
-      return {
-        success: false,
-        message: "A data de término não pode ser anterior à data de início.",
-        inputs: validatedFields.data,
-      };
+        return {
+            success: false,
+            message: "A data de término não pode ser anterior à data de início.",
+            inputs: validatedFields.data,
+        };
     }
-    const { days } = schedule;
 
     if (!days.every((day) => DAYS.includes(day))) {
-      return {
-        success: false,
-        message: "Erro ao processar os dias das aulas.",
-        inputs: validatedFields.data,
-      };
+        return {
+            success: false,
+            message: "Erro ao processar os dias das aulas.",
+            inputs: validatedFields.data,
+        };
     }
-  }
 
-  const isBlank = (v) =>
-    v == null || v === "" || (Array.isArray(v) && v.length === 0);
+    const isBlank = (v) =>
+        v == null || v === "" || (Array.isArray(v) && v.length === 0);
 
-  if (
-    isBlank(data.classTitle) ||
-    isBlank(data.classType) ||
-    isBlank(data.teachers) ||
-    isBlank(data.startDate) ||
-    isBlank(time)
-  ) {
-    return {
+    if (
+        isBlank(data.classTitle) ||
+        isBlank(data.classType) ||
+        isBlank(data.teachers) ||
+        isBlank(data.startDate) ||
+        isBlank(time)
+    ) {
+        return {
+            success: false,
+            message:
+                "Tipo de classe, título da classe, professor, data de início e horário são obrigatórios.",
+            inputs: {
+                ...data,
+                days,
+                time,
+            },
+        };
+    }
+    if (
+        data?.endDate &&
+        data?.startDate &&
+        new Date(data?.endDate) < new Date(data?.startDate)
+    ) {
+        return {
+            success: false,
+            message: "Data de término não pode ser anterior à data de início.",
+            inputs: data,
+        };
+    }
+
+    /*return {
       success: false,
-      message:
-        "Tipo de classe, título da classe, professor, data de início e horário são obrigatórios.",
+      message: "ERRO PARA TESTES",
       inputs: {
         ...data,
         days,
         time,
       },
-    };
-  }
-  if (
-    data?.endDate &&
-    data?.startDate &&
-    new Date(data?.endDate) < new Date(data?.startDate)
-  ) {
-    return {
-      success: false,
-      message: "Data de término não pode ser anterior à data de início.",
-      inputs: data,
-    };
-  }
-  console.log("DADOS", ({
-    ...data,
-    days,
-    time,
-  }));
-  // return {
-  //   success: false,
-  //   message: "ERRO PARA TESTES",
-  //   inputs: {
-  //     ...data,
-  //     days,
-  //     time,
-  //   },
-  // };
-  try {
-    const Class = await getClassModel();
-    const id = formData.get("_id");
+    };*/
+    try {
+        const Class = await getClassModel();
+        const id = formData.get("_id");
 
-    if (!id) {
-      if (inheritFiles && classTypeExists?.files?.length) {
-        const isPopulated =
-          typeof classTypeExists.populated === "function"
-            ? classTypeExists.populated("files")
-            : false;
+        if (!id) {
+            if (inheritFiles && classTypeExists?.files?.length) {
+                const isPopulated =
+                    typeof classTypeExists.populated === "function"
+                        ? classTypeExists.populated("files")
+                        : false;
 
-        const filesToAttach = isPopulated
-          ? classTypeExists.files.map((f) => f._id)
-          : classTypeExists.files;
+                const filesToAttach = isPopulated
+                    ? classTypeExists.files.map((f) => f._id)
+                    : classTypeExists.files;
 
-        data.files = [...filesToAttach];
-      }
-      await Class.create(data);
-    } else {
-      await Class.findByIdAndUpdate(id, data, { new: true });
+                data.files = [...filesToAttach];
+            }
+            await Class.create(data);
+        } else {
+            await Class.findByIdAndUpdate(id, data, {new: true});
+        }
+    } catch (err) {
+        return {
+            success: false,
+            message: `Erro ao criar ou alterar turma ${err}`,
+            err,
+            inputs: data,
+        };
     }
-  } catch (err) {
-    return {
-      success: false,
-      message: `Erro ao criar ou alterar turma ${err}`,
-      err,
-      inputs: data,
-    };
-  }
 
-  revalidatePath("/admin/dashboard/class/");
-  redirect("/admin/dashboard/class", RedirectType.replace);
+    revalidatePath("/admin/dashboard/class/");
+    redirect("/admin/dashboard/class", RedirectType.replace);
 }

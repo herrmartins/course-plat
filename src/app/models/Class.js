@@ -74,14 +74,17 @@ const ClassSchema = new mongoose.Schema(
     ],
     status: {
       type: String,
-      enum: ["active", "completed", "cancelled", "archived"],
+      enum: ["active", "archived"],
       default: "active",
       index: true,
     },
     price: {
       type: Number,
       required: true
-    }
+    },
+      link : {
+        type: String,
+      }
   },
   {
     timestamps: { createdAt: "createdAt", updatedAt: "modifiedAt" },

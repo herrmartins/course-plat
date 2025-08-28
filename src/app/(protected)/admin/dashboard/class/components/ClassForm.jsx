@@ -272,6 +272,22 @@ function ClassForm({
           />
         </div>
 
+          <div className="mb-4">
+              <label
+                  htmlFor="link"
+                  className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2"
+              >
+                  Link:
+              </label>
+              <input
+                  type="text"
+                  id="link"
+                  name="link"
+                  defaultValue={inputs?.link || ""}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:border-gray-600"
+              />
+          </div>
+
         <div className="mb-4">
           {!classData._id && (
             <FormCheckbox

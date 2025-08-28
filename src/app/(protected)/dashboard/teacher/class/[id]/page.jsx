@@ -42,12 +42,13 @@ export default async function TeacherClassPage({params}) {
     console.log("Class data", plainClassData)
 
     // TODO: Replace with real DB fetches. For now, keep hardcoded mock data using the id param.
+    // TODO: take off the ai generated inexisting params
     const cls = {
         id: id || "",
         classTitle: plainClassData?.classTitle || "",
-        teachers: plainClassData.teachers.map(t => t.fullName) || ["Rafael Martins"],
-        status: "Ativa",
-        schedule: {days: ["Seg", "Qua"], time: "19:00–20:30"},
+        teachers: plainClassData?.teachers.map(t => t.fullName) || [],
+        status: plainClassData?.status,
+        schedule: {days: plainClassData?.schedule?.days || [], time: plainClassData?.schedule?.time || []},
         nextSession: {date: "2025-08-27", topic: "Present Simple — Rotinas", room: "Sala 204"},
         stats: {students: plainClassData?.students?.length || 0, attendanceRate: 0.92, avgScore: 8.1, pendingSubmissions: 5},
         materials: [
