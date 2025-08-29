@@ -19,6 +19,7 @@ import {
     FolderOpenIcon,
     PlayCircleIcon,
 } from "@heroicons/react/24/outline";
+import ClassLinkButton from "@/app/(protected)/dashboard/teacher/components/ClassButtonLink";
 
 export default function ClassDetail({clsData = {}, filesData = []}) {
     const cls = {
@@ -27,6 +28,7 @@ export default function ClassDetail({clsData = {}, filesData = []}) {
         teachers: clsData.teachers || ["Fulano de tal"],
         status: clsData.status || "Em andamento",
         schedule: clsData.schedule || {days: ["Seg", "Qua"], time: "19:00–20:30"},
+        link: clsData.link || "",
         nextSession:
             clsData.nextSession || {
                 date: "2025-08-27",
@@ -54,6 +56,7 @@ export default function ClassDetail({clsData = {}, filesData = []}) {
             "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-900",
     };
 
+    // TODO: tirar isso quando for o momento, provvelmente não sá
     function formatBR(dateISO) {
         const d = new Date(dateISO);
         return d.toLocaleDateString("pt-BR", {
@@ -62,12 +65,6 @@ export default function ClassDetail({clsData = {}, filesData = []}) {
             year: "numeric",
         });
     }
-
-    const onAssignTask = () => alert("Atribuir Tarefa — mock");
-    const onTakeAttendance = () => alert("Registrar Presenças — mock");
-    const onStartClass = () => alert("Iniciar Aula — mock");
-    const onPostAnnouncement = () => alert("Postar Aviso — mock");
-    const onCreateQuiz = () => alert("Criar Quiz — mock");
 
     return (
         <div className="max-w-6xl mx-auto p-6">
@@ -105,8 +102,8 @@ export default function ClassDetail({clsData = {}, filesData = []}) {
                     {/*           onClick={onCreateQuiz}/>*/}
                     {/*<ActionBtn icon={<MegaphoneIcon className="w-5 h-5"/>} label="Postar Aviso"*/}
                     {/*           onClick={onPostAnnouncement}/>*/}
-                    <ActionBtn icon={<PlayCircleIcon className="w-5 h-5"/>} label="Alterar Link"
-                               onClick={onStartClass}/>
+
+                    <ClassLinkButton cls={cls} />
                 </div>
             </div>
 

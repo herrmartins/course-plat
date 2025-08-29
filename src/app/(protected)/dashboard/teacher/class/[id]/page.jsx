@@ -1,5 +1,4 @@
 import MainSection from "@/app/(protected)/components/shared/Main";
-import PageTitle from "@/app/(protected)/components/shared/PageTitle";
 import ClassDetail from "@/app/(protected)/components/teacher/ClassDetail";
 import {getClassModel} from "@/app/models/Class";
 import {getFileModel} from "@/app/models/FilesSchema";
@@ -39,8 +38,6 @@ export default async function TeacherClassPage({params}) {
         type: f?.mimetype || "",
     }));
 
-    console.log("Class data", plainClassData)
-
     // TODO: Replace with real DB fetches. For now, keep hardcoded mock data using the id param.
     // TODO: take off the ai generated inexisting params
     const cls = {
@@ -51,6 +48,7 @@ export default async function TeacherClassPage({params}) {
         schedule: {days: plainClassData?.schedule?.days || [], time: plainClassData?.schedule?.time || []},
         nextSession: {date: "2025-08-27", topic: "Present Simple — Rotinas", room: "Sala 204"},
         stats: {students: plainClassData?.students?.length || 0, attendanceRate: 0.92, avgScore: 8.1, pendingSubmissions: 5},
+        link: plainClassData?.link,
         materials: [
             {name: "Slides Aula 03 - Present Simple.pdf", size: "2.1 MB"},
             {name: "Workbook — Unidade 1 (exercícios).pdf", size: "1.4 MB"},
